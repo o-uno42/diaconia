@@ -1,17 +1,18 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES2022",
+    "strict": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "paths": {
-      "@diaconia/shared": ["../packages/shared/types/index"]
-    }
+    "declaration": true,
+    "sourceMap": true
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../packages/shared" }]
+  "exclude": ["node_modules", "dist"]
 }
