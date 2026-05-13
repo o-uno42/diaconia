@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@diaconia/shared": ["../packages/shared/types/index"]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../packages/shared" }]
+}
