@@ -37,7 +37,7 @@ export default function CommitmentsCalendarPage() {
   const handleDownloadPdf = async () => {
     const weekLabel = formatWeekRange(weekOffset, lang);
     await apiDownloadFile(
-      `/api/export/commitments-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `/api/export-pdf/commitments-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
       `commitments-${weekId}.pdf`,
     );
   };

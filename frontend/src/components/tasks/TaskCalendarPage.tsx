@@ -41,7 +41,7 @@ export default function TaskCalendarPage() {
     const weekId = getWeekId(weekOffset);
     const weekLabel = formatWeekRange(weekOffset, lang);
     await apiDownloadFile(
-      `/api/export/tasks-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `/api/export-pdf/tasks-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
       `task-calendar-${weekId}.pdf`,
     );
   };

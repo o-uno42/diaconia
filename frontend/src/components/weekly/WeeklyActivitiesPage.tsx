@@ -128,7 +128,7 @@ export default function WeeklyActivitiesPage() {
   const handleDownloadPdf = async () => {
     const weekLabel = formatWeekRange(weekOffset, lang);
     await apiDownloadFile(
-      `/api/export/weekly-activities-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `/api/export-pdf/weekly-activities-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
       `weekly-activities-${weekId}.pdf`,
     );
   };
