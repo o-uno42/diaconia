@@ -12,6 +12,7 @@ import ProfilePage from './components/profile/ProfilePage';
 import AdminProfilePage from './components/profile/AdminProfilePage';
 import TaskCalendarPage from './components/tasks/TaskCalendarPage';
 import RagazzoTaskView from './components/tasks/RagazzoTaskView';
+import RagazzoWeeklyActivitiesView from './components/weekly/RagazzoWeeklyActivitiesView';
 import ReportPage from './components/report/ReportPage';
 import CommitmentsCalendarPage from './components/commitments/CommitmentsCalendarPage';
 import WeeklyActivitiesPage from './components/weekly/WeeklyActivitiesPage';
@@ -114,6 +115,7 @@ function AppRoutes() {
         <Route path="/ragazzo" element={<AuthGuard><RagazzoLayout /></AuthGuard>}>
           <Route index element={<RagazzoHome />} />
           <Route path="tasks" element={<RagazzoTaskView />} />
+          <Route path="weekly-activities" element={<RagazzoWeeklyActivitiesView />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 

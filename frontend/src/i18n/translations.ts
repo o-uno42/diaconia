@@ -7,7 +7,7 @@ type TranslationKeys = {
   role_admin: string; role_ragazzo: string;
   // Nav
   nav_dashboard: string; nav_ragazzi: string; nav_tasks: string; nav_commitments: string;
-  nav_weekly_activities: string; nav_stats: string;
+  nav_weekly_activities: string; nav_activities: string; nav_stats: string;
   nav_profile: string; nav_home: string; nav_logout: string; nav_notifications: string;
   // Stats
   stats_title: string;
@@ -53,6 +53,8 @@ type TranslationKeys = {
   // Days
   day_mon: string; day_tue: string; day_wed: string; day_thu: string;
   day_fri: string; day_sat: string; day_sun: string;
+  day_mon_full: string; day_tue_full: string; day_wed_full: string; day_thu_full: string;
+  day_fri_full: string; day_sat_full: string; day_sun_full: string;
   // Report
   report_title: string; report_of: string; report_add: string; report_date: string;
   report_daily_area: string; report_health: string; report_family_area: string;
@@ -84,6 +86,7 @@ type TranslationKeys = {
   weekly_activities: string;
   wa_manage: string; wa_manage_title: string; wa_add: string; wa_name: string;
   wa_empty: string; wa_confirm_delete: string; wa_download_pdf: string;
+  wa_ragazzo_empty: string;
   // Notifications
   notif_title: string; notif_mark_all: string; notif_empty: string;
   // Profile
@@ -138,7 +141,7 @@ const translations: TranslationsMap = {
     brand_subtitle: 'Gestire la quotidianità', brand_tagline: 'Vivere la quotidianità, insieme',
     role_admin: 'Admin', role_ragazzo: 'Ragazzo',
     nav_dashboard: 'Panoramica', nav_ragazzi: 'Ragazzi', nav_tasks: 'Compiti', nav_commitments: 'Impegni',
-    nav_weekly_activities: 'Attività settimanali', nav_stats: 'Statistiche',
+    nav_weekly_activities: 'Attività settimanali', nav_activities: 'Attività', nav_stats: 'Statistiche',
     stats_title: 'Statistiche mensili compiti',
     stats_legend: 'Legenda compiti',
     stats_never_done: 'Compiti mai svolti',
@@ -184,6 +187,8 @@ const translations: TranslationsMap = {
     task_completion_pending_tooltip: 'In attesa di conferma — clicca per rivedere',
     day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Gio',
     day_fri: 'Ven', day_sat: 'Sab', day_sun: 'Dom',
+    day_mon_full: 'Lunedì', day_tue_full: 'Martedì', day_wed_full: 'Mercoledì', day_thu_full: 'Giovedì',
+    day_fri_full: 'Venerdì', day_sat_full: 'Sabato', day_sun_full: 'Domenica',
     report_title: 'Report', report_of: 'di', report_add: 'Nuovo report', report_date: 'Data',
     report_daily_area: 'Area quotidiana', report_health: 'Salute', report_family_area: 'Area familiare',
     report_social_relational: 'Socio-relazionale', report_psycho_affective: 'Psico-affettivo',
@@ -214,6 +219,7 @@ const translations: TranslationsMap = {
     wa_empty: 'Nessuna fascia. Aggiungine una per iniziare.',
     wa_confirm_delete: 'Eliminare questa fascia? Tutte le voci collegate verranno rimosse.',
     wa_download_pdf: 'Scarica PDF',
+    wa_ragazzo_empty: 'Nessuna attività in programma questa settimana.',
     notif_title: 'Notifiche', notif_mark_all: 'Segna tutto come letto', notif_empty: 'Nessuna notifica',
     profile_personal_info: 'Informazioni personali', profile_settings: 'Impostazioni',
     nav_admin_profile: 'Profilo',
@@ -355,6 +361,11 @@ export function t(key: keyof TranslationKeys, lang: Language = 'it'): string {
 
 export function getDayLabels(lang: Language): string[] {
   const keys: (keyof TranslationKeys)[] = ['day_mon', 'day_tue', 'day_wed', 'day_thu', 'day_fri', 'day_sat', 'day_sun'];
+  return keys.map((k) => t(k, lang));
+}
+
+export function getFullDayLabels(lang: Language): string[] {
+  const keys: (keyof TranslationKeys)[] = ['day_mon_full', 'day_tue_full', 'day_wed_full', 'day_thu_full', 'day_fri_full', 'day_sat_full', 'day_sun_full'];
   return keys.map((k) => t(k, lang));
 }
 
