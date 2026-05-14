@@ -147,7 +147,14 @@ export default function WashingMachinePage() {
           {t('washing_machine_title', lang)}{' '}
           <span className="text-[17px] text-violet-800">({month.label})</span>
         </h1>
-        <NotificationBell />
+        <div className='flex items-center gap-3'>
+          <Button
+              className='bg-indigo-600 hover:bg-indigo-800 text-white'
+            >
+              {t('wa_download_pdf', lang)} ({month.label})
+            </Button>
+          <NotificationBell />
+        </div>
       </div>
 
       <div className="flex items-center justify-center gap-3 mb-6">

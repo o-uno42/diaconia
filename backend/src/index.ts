@@ -43,6 +43,8 @@ app.use('/api/weekly-activities', authMiddleware, weeklyActivitiesRoutes);
 app.use('/api/ragazzi', authMiddleware, reportsRoutes);
 app.use('/api/ragazzi', authMiddleware, photosRoutes);
 app.use('/api/transcribe', authMiddleware, transcribeRoutes);
+app.use('/api/washing-machine', authMiddleware, washingMachineRoutes);
+app.use('/api/export-pdf', authMiddleware, exportPdfRoutes);
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
