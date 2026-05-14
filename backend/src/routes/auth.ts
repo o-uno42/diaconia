@@ -5,62 +5,98 @@ import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
-// POST /api/auth/login
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body as { email?: string; password?: string };
+// POST /api/auth/login — JWT must be in Authorization: Bearer header.
+// Frontend signs in via Supabase client (gets JWT), then calls this to get
+// the full profile. No credentials accepted in the body.
+router.post('/login', authMiddleware, (req: Request, res: Response): void => {
+  res.json({ data: { user: req.user } });
+});
 
-  if (!email || !password) {
-    res.status(400).json({ error: 'Email and password are required' });
+// POST /api/auth/register — creates a new admin or ragazzo account.
+router.post('/register', async (req: Request, res: Response): Promise<void> => {
+  const { email, password, firstName, lastName, role } = req.body as {
+    email?: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    role?: string;
+  };
+
+  if (!email || !password || !firstName || !lastName) {
+    res.status(400).json({ error: 'email, password, firstName and lastName are required' });
     return;
   }
 
+  if (password.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters' });
+    return;
+  }
+
+  const userRole = role === 'ragazzo' ? 'ragazzo' : 'admin';
+
   try {
-    // Use an isolated client for sign-in so the shared service-role client
-    // doesn't get its session overwritten with this user's JWT — otherwise
-    // subsequent storage/db calls would run as the user (RLS) instead of as
-    // service_role (bypasses RLS).
-    const authClient = createClient(
+    // Use anon-key client so Supabase sends the OTP confirmation email
+    const anonClient = createClient(
       process.env['SUPABASE_URL']!,
-      process.env['SUPABASE_SERVICE_ROLE_KEY']!,
+      process.env['SUPABASE_ANON_KEY']!,
       { auth: { autoRefreshToken: false, persistSession: false } },
     );
-    const { data, error } = await authClient.auth.signInWithPassword({
+
+    const { data: signUpData, error: signUpError } = await anonClient.auth.signUp({
       email,
       password,
-    });
-
-    if (error) {
-      res.status(401).json({ error: error.message });
-      return;
-    }
-
-    // Fetch profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, ragazzo_id, text_scale_percent, high_contrast')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profileError || !profile) {
-      res.status(500).json({ error: 'User profile not found' });
-      return;
-    }
-
-    res.json({
-      data: {
-        session: data.session,
-        user: {
-          id: data.user.id,
-          role: profile.role,
-          email: data.user.email,
-          ragazzoId: profile.ragazzo_id,
-          textScalePercent: profile.text_scale_percent ?? 100,
-          highContrast: profile.high_contrast ?? false,
-        },
+      options: {
+        data: { first_name: firstName, last_name: lastName },
       },
     });
+
+    if (signUpError || !signUpData.user) {
+      res.status(400).json({ error: signUpError?.message ?? 'Registration failed' });
+      return;
+    }
+
+    const userId = signUpData.user.id;
+
+    // For ragazzi: create the ragazzi record first, then link it in the profile
+    let ragazzoId: string | null = null;
+    if (userRole === 'ragazzo') {
+      const { data: ragazzo, error: ragazzoError } = await supabase
+        .from('ragazzi')
+        .insert({
+          user_id: userId,
+          first_name: firstName,
+          last_name: lastName,
+          language: 'it',
+          keywords: [],
+        })
+        .select('id')
+        .single();
+
+      if (ragazzoError || !ragazzo) {
+        await supabase.auth.admin.deleteUser(userId);
+        res.status(500).json({ error: 'Failed to create ragazzo record' });
+        return;
+      }
+
+      ragazzoId = ragazzo.id as string;
+    }
+
+    // Create profile row (user cannot log in until email is confirmed)
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({ id: userId, role: userRole, ragazzo_id: ragazzoId });
+
+    if (profileError) {
+      // Roll back: delete ragazzo record if created, then auth user
+      if (ragazzoId) await supabase.from('ragazzi').delete().eq('id', ragazzoId);
+      await supabase.auth.admin.deleteUser(userId);
+      res.status(500).json({ error: 'Failed to create user profile' });
+      return;
+    }
+
+    res.status(201).json({ data: { message: 'Check your email for the confirmation OTP.' } });
   } catch {
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 

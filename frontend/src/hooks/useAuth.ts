@@ -32,7 +32,7 @@ export function useAuth() {
         return false;
       }
 
-      // Real Supabase auth
+      // 1. Sign in via Supabase client → stores session / JWT locally
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) {
         dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: signInError.message } });
@@ -40,7 +40,8 @@ export function useAuth() {
         return false;
       }
 
-      const res = await apiPost<{ session: unknown; user: UserProfile }>('/api/auth/login', { email, password });
+      // 2. Fetch full profile from backend (JWT sent automatically via apiPost → getToken)
+      const res = await apiPost<{ user: UserProfile }>('/api/auth/login');
       if (res.error || !res.data) {
         dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: res.error ?? 'Login failed' } });
         dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: false } });
@@ -54,6 +55,42 @@ export function useAuth() {
       dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: 'Login failed' } });
       dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: false } });
       return false;
+    }
+  }, [dispatch]);
+
+  const register = useCallback(async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    role: 'admin' | 'ragazzo' = 'admin',
+  ): Promise<{ success: boolean; error?: string }> => {
+    dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: true } });
+    dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: null } });
+
+    try {
+      const res = await apiPost<{ message: string }>('/api/auth/register', {
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+      });
+
+      if (res.error || !res.data) {
+        const msg = res.error ?? 'Registration failed';
+        dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: msg } });
+        dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: false } });
+        return { success: false, error: msg };
+      }
+
+      // Account created — user must confirm email before logging in
+      dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: false } });
+      return { success: true };
+    } catch {
+      dispatch({ type: 'SET_ERROR', payload: { key: 'auth', value: 'Registration failed' } });
+      dispatch({ type: 'SET_LOADING', payload: { key: 'auth', value: false } });
+      return { success: false, error: 'Registration failed' };
     }
   }, [dispatch]);
 
@@ -72,6 +109,7 @@ export function useAuth() {
     loading: state.loading.auth,
     error: state.error.auth,
     login,
+    register,
     logout,
     isAdmin: state.currentUser?.role === 'admin',
     isRagazzo: state.currentUser?.role === 'ragazzo',

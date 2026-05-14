@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAppContext } from '../../store/AppContext';
 import { t } from '../../i18n/translations';
@@ -89,6 +89,13 @@ export default function LoginPage() {
             </Button>
           </div>
         </form>
+
+        {/* Register link */}
+        <div className="mt-4 text-center animate-slide-up" style={{ animationDelay: '150ms' }}>
+          <Link to="/register" className="text-sm text-stone-800/60 hover:text-stone-800 transition-colors">
+            {t('auth_no_account', lang)}
+          </Link>
+        </div>
 
         {/* Demo credentials (collapsible) */}
         <div className="mt-6 glass-card overflow-hidden animate-slide-up" style={{ animationDelay: '200ms' }}>

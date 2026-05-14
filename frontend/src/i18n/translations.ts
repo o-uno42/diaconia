@@ -12,6 +12,10 @@ type TranslationKeys = {
   auth_login: string; auth_email: string; auth_password: string; auth_login_btn: string;
   auth_logging_in: string; auth_error: string;
   auth_demo_credentials: string; auth_demo_password_hint: string;
+  auth_register: string; auth_register_btn: string; auth_registering: string;
+  auth_first_name: string; auth_last_name: string;
+  auth_password_confirm: string; auth_passwords_mismatch: string;
+  auth_no_account: string; auth_already_account: string;
   // Dashboard
   dash_title: string; dash_active_ragazzi: string; dash_weekly_tasks: string;
   dash_completions: string; dash_pending: string;
@@ -82,6 +86,10 @@ const translations: TranslationsMap = {
     auth_login: 'Accedi a Diaconia', auth_email: 'Email', auth_password: 'Password',
     auth_login_btn: 'Accedi', auth_logging_in: 'Accesso in corso...', auth_error: 'Credenziali non valide',
     auth_demo_credentials: 'Credenziali demo', auth_demo_password_hint: 'Password: demo1234',
+    auth_register: 'Crea account', auth_register_btn: 'Crea account', auth_registering: 'Registrazione in corso...',
+    auth_first_name: 'Nome', auth_last_name: 'Cognome',
+    auth_password_confirm: 'Conferma password', auth_passwords_mismatch: 'Le password non coincidono',
+    auth_no_account: 'Non hai un account? Registrati', auth_already_account: 'Hai già un account? Accedi',
     dash_title: 'Panoramica', dash_active_ragazzi: 'Ragazzi registrati in piattaforma', dash_weekly_tasks: 'Compiti di questa settimana',
     dash_completions: 'Compiti completati questa settimana', dash_pending: 'Compiti non ancora svolti',
     dash_welcome: 'Benvenuto nella piattaforma Diaconia', dash_quick_actions: 'Azioni rapide',
@@ -131,6 +139,10 @@ const translations: TranslationsMap = {
     nav_profile: 'Profile', nav_home: 'Home', nav_logout: 'Logout', nav_notifications: 'Notifications',
     auth_login: 'Sign in to Diaconia', auth_email: 'Email', auth_password: 'Password',
     auth_login_btn: 'Sign in', auth_logging_in: 'Signing in...', auth_error: 'Invalid credentials',
+    auth_register: 'Create account', auth_register_btn: 'Create account', auth_registering: 'Creating account...',
+    auth_first_name: 'First name', auth_last_name: 'Last name',
+    auth_password_confirm: 'Confirm password', auth_passwords_mismatch: 'Passwords do not match',
+    auth_no_account: "Don't have an account? Sign up", auth_already_account: 'Already have an account? Sign in',
     dash_title: 'Dashboard', dash_active_ragazzi: 'Active residents', dash_weekly_tasks: 'Weekly tasks',
     dash_completions: 'Completions', dash_pending: 'Pending',
     rag_title: 'Residents', rag_add: 'Add resident', rag_first_name: 'First name', rag_last_name: 'Last name',

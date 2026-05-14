@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { AppProvider, useAppContext } from './store/AppContext';
 import { t } from './i18n/translations';
 import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import AdminSidebar from './components/layout/AdminSidebar';
 import RagazzoBottomNav from './components/layout/RagazzoBottomNav';
@@ -89,6 +90,7 @@ function AppRoutes() {
       <GlobalAccessibilityPreferences />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Admin routes */}
         <Route path="/admin" element={<AuthGuard><AdminLayout /></AuthGuard>}>
