@@ -9,6 +9,7 @@ import reportsRoutes from './routes/reports';
 import photosRoutes from './routes/photos';
 import commitmentsRoutes from './routes/commitments';
 import notificationsRoutes from './routes/notifications';
+import transcribeRoutes from './routes/transcribe';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -35,6 +36,7 @@ app.use('/api/notifications', authMiddleware, notificationsRoutes);
 // Nested routes under ragazzi
 app.use('/api/ragazzi', authMiddleware, reportsRoutes);
 app.use('/api/ragazzi', authMiddleware, photosRoutes);
+app.use('/api/transcribe', authMiddleware, transcribeRoutes);
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

@@ -1,65 +1,103 @@
 import { useState, useCallback, useRef } from 'react';
 import type { Language } from '@shared/types';
+import { apiUpload } from '../lib/api';
 
 const LANG_MAP: Record<Language, string> = {
-  it: 'it-IT', en: 'en-US', fr: 'fr-FR', ar: 'ar-SA',
+  it: 'it', en: 'en', fr: 'fr', ar: 'ar',
 };
-
-interface SpeechRecognitionEvent {
-  results: { [index: number]: { [index: number]: { transcript: string } } };
-}
 
 export function useSpeech(language: Language = 'it') {
   const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<ReturnType<typeof createRecognition> | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const onResultRef = useRef<((text: string) => void) | null>(null);
 
-  const isSupported = typeof window !== 'undefined' &&
-    ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+  const isSupported =
+    typeof navigator !== 'undefined' &&
+    typeof navigator.mediaDevices?.getUserMedia === 'function' &&
+    typeof MediaRecorder !== 'undefined';
 
-  const startListening = useCallback((onResult: (text: string) => void) => {
-    if (!isSupported) return;
-    const recognition = createRecognition();
-    if (!recognition) return;
+  const startListening = useCallback(
+    (onResult: (text: string) => void) => {
+      if (!isSupported || isListening) return;
+      onResultRef.current = onResult;
+      chunksRef.current = [];
 
-    recognition.lang = LANG_MAP[language];
-    recognition.continuous = true;
-    recognition.interimResults = false;
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          // Prefer webm/opus → ogg/opus → wav fallback
+          const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus'
+            : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+              ? 'audio/ogg;codecs=opus'
+              : 'audio/webm';
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const results = event.results;
-      const lastResult = results[Object.keys(results).length - 1];
-      const text = lastResult?.[0]?.transcript ?? '';
-      setTranscript((prev) => prev + ' ' + text);
-      onResult(text);
-    };
+          const recorder = new MediaRecorder(stream, { mimeType });
 
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
+          recorder.ondataavailable = (e) => {
+            if (e.data.size > 0) chunksRef.current.push(e.data);
+          };
 
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
-    setTranscript('');
-  }, [language, isSupported]);
+          recorder.onstop = async () => {
+            // Stop all tracks so the browser releases the mic
+            stream.getTracks().forEach((t) => t.stop());
+
+            const blob = new Blob(chunksRef.current, { type: mimeType });
+            if (blob.size === 0) return;
+
+            setIsTranscribing(true);
+            try {
+              const formData = new FormData();
+              const ext = mimeType.includes('ogg') ? 'ogg' : 'webm';
+              formData.append('audio', blob, `recording.${ext}`);
+
+              const lang = LANG_MAP[language];
+              const res = await apiUpload<{ transcript: string }>(
+                `/api/transcribe?language=${lang}`,
+                formData,
+              );
+
+              if (res.data?.transcript) {
+                onResultRef.current?.(res.data.transcript);
+              } else if (res.error) {
+                console.error('[useSpeech] Transcription error:', res.error);
+              }
+            } catch (err) {
+              console.error('[useSpeech] Transcription failed:', err);
+            } finally {
+              setIsTranscribing(false);
+            }
+          };
+
+          mediaRecorderRef.current = recorder;
+          recorder.start(1000); // collect chunks every 1s
+          setIsListening(true);
+        })
+        .catch((err) => {
+          console.error('[useSpeech] Mic access denied:', err);
+        });
+    },
+    [language, isSupported, isListening],
+  );
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop();
+    }
     setIsListening(false);
   }, []);
 
-  return { isListening, transcript, isSupported, startListening, stopListening };
-}
-
-function createRecognition() {
-  const W = window as unknown as Record<string, unknown>;
-  const SpeechRecognition = W['SpeechRecognition'] ?? W['webkitSpeechRecognition'];
-  if (!SpeechRecognition) return null;
-  return new (SpeechRecognition as new () => {
-    lang: string; continuous: boolean; interimResults: boolean;
-    onresult: ((e: SpeechRecognitionEvent) => void) | null;
-    onend: (() => void) | null;
-    onerror: (() => void) | null;
-    start: () => void; stop: () => void;
-  })();
+  return {
+    /** True while the microphone is actively recording */
+    isListening,
+    /** True while waiting for Deepgram to return the transcript */
+    isTranscribing,
+    /** False if the browser doesn't support MediaRecorder or getUserMedia */
+    isSupported,
+    startListening,
+    stopListening,
+  };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../lib/api';
@@ -6,16 +6,17 @@ import { isMockMode } from '../../lib/supabase';
 import { MOCK_REPORTS, MOCK_RAGAZZI } from '../../lib/mockData';
 import { t, type TranslationKeys } from '../../i18n/translations';
 import type { ReportEntry, ReportSections } from '@shared/types';
+import { useSpeech } from '../../hooks/useSpeech';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import Highlight from '../ui/Highlight';
 
 const SECTION_KEYS: { key: keyof ReportSections; labelKey: keyof TranslationKeys; titleColor: string }[] = [
-  { key: 'dailyArea',         labelKey: 'report_daily_area',         titleColor: 'text-indigo-700' },
-  { key: 'health',            labelKey: 'report_health',             titleColor: 'text-emerald-700' },
-  { key: 'familyArea',        labelKey: 'report_family_area',        titleColor: 'text-rose-700' },
-  { key: 'socialRelational',  labelKey: 'report_social_relational',  titleColor: 'text-sky-700' },
-  { key: 'psychoAffective',   labelKey: 'report_psycho_affective',   titleColor: 'text-violet-700' },
+  { key: 'dailyArea', labelKey: 'report_daily_area', titleColor: 'text-indigo-700' },
+  { key: 'health', labelKey: 'report_health', titleColor: 'text-emerald-700' },
+  { key: 'familyArea', labelKey: 'report_family_area', titleColor: 'text-rose-700' },
+  { key: 'socialRelational', labelKey: 'report_social_relational', titleColor: 'text-sky-700' },
+  { key: 'psychoAffective', labelKey: 'report_psycho_affective', titleColor: 'text-violet-700' },
   { key: 'individualSession', labelKey: 'report_individual_session', titleColor: 'text-amber-700' },
 ];
 
@@ -33,6 +34,17 @@ export default function ReportPage() {
   const [addDate, setAddDate] = useState(new Date().toISOString().slice(0, 10));
   const [addText, setAddText] = useState('');
   const lang = state.language;
+  const { isListening, isTranscribing, isSupported, startListening, stopListening } = useSpeech(lang);
+
+  const handleMicToggle = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening((text) => {
+        setAddText((prev) => (prev ? prev + ' ' + text : text));
+      });
+    }
+  }, [isListening, startListening, stopListening]);
 
   const ragazzo = state.ragazzi.find((r) => r.id === id) ?? MOCK_RAGAZZI.find((r) => r.id === id);
   const keywords = ragazzo?.keywords ?? [];
@@ -88,6 +100,11 @@ export default function ReportPage() {
         if (res.data) setEntries([res.data, ...entries]);
       }
     }
+    closeAddModal();
+  };
+
+  const closeAddModal = () => {
+    stopListening();
     setAddArea(null);
   };
 
@@ -177,7 +194,7 @@ export default function ReportPage() {
       {/* Add-to-area Modal — scoped to a single thematic area */}
       <Modal
         isOpen={!!addArea}
-        onClose={() => setAddArea(null)}
+        onClose={closeAddModal}
         title={`${t('report_add', lang)} — ${currentAreaLabel}`}
         size="md"
       >
@@ -202,24 +219,57 @@ export default function ReportPage() {
             />
           </div>
 
-          <div className="flex justify-center">
-            <button
-              type="button"
-              aria-label="Microfono"
-              className="w-16 h-16 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-md hover:bg-violet-700 active:scale-95 transition-all"
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" aria-hidden="true">
-                <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="2" />
-                <path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M12 17v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M9 21h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
+          {isSupported && (
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={handleMicToggle}
+                disabled={isTranscribing}
+                aria-label={isListening ? 'Ferma registrazione' : 'Microfono'}
+                className={`w-16 h-16 rounded-full text-white flex items-center justify-center shadow-md active:scale-95 transition-all ${isTranscribing
+                  ? 'bg-amber-500 cursor-wait'
+                  : isListening
+                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                    : 'bg-violet-600 hover:bg-violet-700'
+                  }`}
+              >
+                {isTranscribing ? (
+                  /* Spinner icon */
+                  <svg className="w-7 h-7 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3" />
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                ) : isListening ? (
+                  /* Stop icon */
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7" aria-hidden="true">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                ) : (
+                  /* Mic icon */
+                  <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" aria-hidden="true">
+                    <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="2" />
+                    <path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M12 17v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M9 21h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                )}
+              </button>
+              {isListening && (
+                <span className="text-xs text-red-500 font-medium animate-pulse">
+                  Registrazione in corso…
+                </span>
+              )}
+              {isTranscribing && (
+                <span className="text-xs text-amber-600 font-medium">
+                  Trascrizione in corso…
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setAddArea(null)}>{t('common_cancel', lang)}</Button>
-            <Button onClick={handleSaveAddArea}>{t('common_save', lang)}</Button>
+            <Button variant="ghost" onClick={closeAddModal}>{t('common_cancel', lang)}</Button>
+            <Button onClick={handleSaveAddArea} disabled={isListening || isTranscribing}>{t('common_save', lang)}</Button>
           </div>
         </div>
       </Modal>
