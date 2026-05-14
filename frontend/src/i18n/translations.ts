@@ -70,6 +70,16 @@ type TranslationKeys = {
   top_task_title: string; top_task_count_pre: string; top_task_count_post: string;
   // Commitments
   commit_title: string; commit_add: string; commit_text: string; commit_day: string; commit_edit: string;
+  // Washing machine
+  nav_washing_machine: string;
+  washing_machine_title: string;
+  washing_machine_col_v: string;
+  washing_machine_col_la: string;
+  washing_machine_empty_ragazzi: string;
+  washing_machine_prev_month: string;
+  washing_machine_next_month: string;
+  washing_machine_current_month: string;
+  washing_machine_day_header: string;
   // Weekly activities
   weekly_activities: string;
   wa_manage: string; wa_manage_title: string; wa_add: string; wa_name: string;
@@ -189,6 +199,15 @@ const translations: TranslationsMap = {
     points_card_pre: 'Hai accumulato', points_card_post: 'punti. Grande!',
     top_task_title: 'Compito preferito:', top_task_count_pre: 'Svolto', top_task_count_post: 'volte',
     commit_title: 'Impegni settimanali', commit_add: 'Aggiungi impegno', commit_text: 'Testo impegno', commit_day: 'Giorno', commit_edit: 'Modifica impegno',
+    nav_washing_machine: 'Lavatrice',
+    washing_machine_title: 'Gestione lavatrice',
+    washing_machine_col_v: 'V',
+    washing_machine_col_la: 'L e A',
+    washing_machine_empty_ragazzi: 'Nessun ragazzo. Aggiungine uno per iniziare a usare il calendario lavatrice.',
+    washing_machine_prev_month: 'Precedente',
+    washing_machine_next_month: 'Successivo',
+    washing_machine_current_month: 'Questo mese',
+    washing_machine_day_header: 'Giorno',
     weekly_activities: 'Attività settimanali',
     wa_manage: 'Modifica fasce attività', wa_manage_title: 'Fasce attività',
     wa_add: 'Aggiungi fascia', wa_name: 'Nome fascia',

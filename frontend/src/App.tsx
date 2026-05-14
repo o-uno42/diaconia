@@ -16,6 +16,7 @@ import ReportPage from './components/report/ReportPage';
 import CommitmentsCalendarPage from './components/commitments/CommitmentsCalendarPage';
 import WeeklyActivitiesPage from './components/weekly/WeeklyActivitiesPage';
 import TaskStatsPage from './components/stats/TaskStatsPage';
+import WashingMachinePage from './components/washingMachine/WashingMachinePage';
 import landingImage from './assets/landing.png';
 
 function GlobalAccessibilityPreferences() {
@@ -105,6 +106,7 @@ function AppRoutes() {
           <Route path="commitments" element={<CommitmentsCalendarPage />} />
           <Route path="weekly-activities" element={<WeeklyActivitiesPage />} />
           <Route path="stats" element={<TaskStatsPage />} />
+          <Route path="washing-machine" element={<WashingMachinePage />} />
           <Route path="profile" element={<AdminProfilePage />} />
         </Route>
 

@@ -1,4 +1,4 @@
-import type { Ragazzo, Task, TaskTemplate, Notification, ReportEntry, WeeklyPoints, Commitment, EmailTemplate, WeeklyActivity, WeeklyActivityEntry } from '@shared/types';
+import type { Ragazzo, Task, TaskTemplate, Notification, ReportEntry, WeeklyPoints, Commitment, EmailTemplate, WeeklyActivity, WeeklyActivityEntry, WashingMachineEntry } from '@shared/types';
 
 // ─── Mock Ragazzi ───────────────────────────────────────────────────
 export const MOCK_RAGAZZI: Ragazzo[] = [
@@ -136,6 +136,49 @@ export function getMockWeeklyActivityEntries(weekId: string): WeeklyActivityEntr
     { id: 'wae-2', activityId: 'wa-4', weekId, day: 1, text: 'Compiti di matematica' },
     { id: 'wae-3', activityId: 'wa-3', weekId, day: 2, text: 'Laboratorio musicale' },
   ];
+}
+
+// ─── Mock Washing-Machine Entries ───────────────────────────────────
+// In mock mode the matrix is stored in-memory so toggling persists for
+// the session. Pre-seeded with a few X marks in the current month so
+// the UI is not empty on first load.
+const mockWashingMachineEntries: WashingMachineEntry[] = (() => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const date = (d: number) => `${y}-${m}-${String(d).padStart(2, '0')}`;
+  return [
+    { id: 'wm-1', ragazzoId: 'mock-mario-id',  date: date(3),  entryType: 'V'  },
+    { id: 'wm-2', ragazzoId: 'mock-mario-id',  date: date(10), entryType: 'LA' },
+    { id: 'wm-3', ragazzoId: 'mock-giulia-id', date: date(5),  entryType: 'V'  },
+    { id: 'wm-4', ragazzoId: 'mock-giulia-id', date: date(5),  entryType: 'LA' },
+    { id: 'wm-5', ragazzoId: 'mock-ahmed-id',  date: date(12), entryType: 'V'  },
+  ];
+})();
+
+export function getMockWashingMachineEntries(year: number, month: number): WashingMachineEntry[] {
+  const prefix = `${year}-${String(month).padStart(2, '0')}-`;
+  return mockWashingMachineEntries.filter((e) => e.date.startsWith(prefix));
+}
+
+export function addMockWashingMachineEntry(ragazzoId: string, date: string, entryType: 'V' | 'LA'): WashingMachineEntry {
+  const existing = mockWashingMachineEntries.find(
+    (e) => e.ragazzoId === ragazzoId && e.date === date && e.entryType === entryType,
+  );
+  if (existing) return existing;
+  const entry: WashingMachineEntry = {
+    id: `wm-mock-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    ragazzoId, date, entryType,
+  };
+  mockWashingMachineEntries.push(entry);
+  return entry;
+}
+
+export function removeMockWashingMachineEntry(ragazzoId: string, date: string, entryType: 'V' | 'LA'): void {
+  const i = mockWashingMachineEntries.findIndex(
+    (e) => e.ragazzoId === ragazzoId && e.date === date && e.entryType === entryType,
+  );
+  if (i >= 0) mockWashingMachineEntries.splice(i, 1);
 }
 
 // ─── Mock Email Templates ───────────────────────────────────────────

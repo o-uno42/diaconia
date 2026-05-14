@@ -11,6 +11,7 @@ const navItems = [
   { to: '/admin/commitments', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', labelKey: 'nav_commitments' as const },
   { to: '/admin/weekly-activities', icon: 'M4 6h16M4 12h16M4 18h16', labelKey: 'nav_weekly_activities' as const },
   { to: '/admin/stats', icon: 'M3 3v18h18M7 16V8m4 8V4m4 12v-6m4 6v-9', labelKey: 'nav_stats' as const },
+  { to: '/admin/washing-machine', icon: 'M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm2 4h1m4 8a4 4 0 100-8 4 4 0 000 8z', labelKey: 'nav_washing_machine' as const },
   { to: '/admin/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', labelKey: 'nav_admin_profile' as const },
 ];
 
