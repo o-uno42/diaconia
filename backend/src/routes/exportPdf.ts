@@ -40,7 +40,6 @@ function drawTable(
   const usableWidth = colWidths.reduce((a, b) => a + b, 0);
   let y = startY;
 
-  // Header row
   const headerH = 20;
   doc.rect(PAGE_MARGIN, y, usableWidth, headerH).fill(HEADER_BG);
   let cx = PAGE_MARGIN;
@@ -51,7 +50,6 @@ function drawTable(
   });
   y += headerH;
 
-  // Data rows
   rows.forEach((row, ri) => {
     doc.font('Helvetica').fontSize(7.5);
     const cellW = row.map((_, ci) => Math.max(colWidths[ci] - 8, 10));
@@ -60,40 +58,27 @@ function drawTable(
     );
     const rowH = Math.max(...cellTextH.map((h) => h + 12), ROW_MIN_HEIGHT);
 
-    // Background + border
     doc.rect(PAGE_MARGIN, y, usableWidth, rowH).fill(ri % 2 === 0 ? ROW_BG_ODD : '#ffffff');
     doc.rect(PAGE_MARGIN, y, usableWidth, rowH).stroke('#d6d3d1');
 
-    // Vertical dividers
     cx = PAGE_MARGIN;
     colWidths.forEach((w) => { cx += w; doc.moveTo(cx, y).lineTo(cx, y + rowH).stroke('#d6d3d1'); });
 
-    // Cell text — centrato orizzontalmente e verticalmente
     cx = PAGE_MARGIN;
     doc.font('Helvetica').fontSize(7.5).fillColor('#1c1917');
     row.forEach((cell, ci) => {
       if (cell) {
         const textY = y + (rowH - cellTextH[ci]) / 2;
-        doc.text(cell, cx + 4, textY, {
-          width: cellW[ci],
-          align: 'center',
-          lineBreak: true,
-        });
+        doc.text(cell, cx + 4, textY, { width: cellW[ci], align: 'center', lineBreak: true });
       }
       cx += colWidths[ci];
     });
 
     y += rowH;
-
-    // New page if needed
-    if (y > doc.page.height - PAGE_MARGIN - 30) {
-      doc.addPage();
-      y = PAGE_MARGIN;
-    }
+    if (y > doc.page.height - PAGE_MARGIN - 30) { doc.addPage(); y = PAGE_MARGIN; }
   });
 }
 
-// ─── GET /api/export/tasks-pdf?weekId=&weekLabel= ──────────────────
 router.get('/tasks-pdf', requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const weekId = req.query['weekId'] as string | undefined;
   const weekLabel = req.query['weekLabel'] as string | undefined;
@@ -109,14 +94,12 @@ router.get('/tasks-pdf', requireAdmin, async (req: Request, res: Response): Prom
       ? await supabase.from('task_completions').select('*').in('task_id', taskIds)
       : { data: [] };
 
-    // Collect ragazzi ids for name lookup
     const ragazziIds = [...new Set((completions ?? []).map((c) => c.ragazzo_id as string))];
     const { data: ragazzi } = ragazziIds.length > 0
       ? await supabase.from('ragazzi').select('id, first_name, last_name').in('id', ragazziIds)
       : { data: [] };
     const ragazziMap = new Map((ragazzi ?? []).map((r) => [r.id as string, r.first_name as string]));
 
-    // Columns: Task | Pt | Lun…Dom — total 535pt (A4 portrait usable width)
     const colWidths = [134, 30, 53, 53, 53, 53, 53, 53, 53];
     const headers = ['Attività', 'Pt', ...DAY_LABELS];
 
@@ -135,7 +118,6 @@ router.get('/tasks-pdf', requireAdmin, async (req: Request, res: Response): Prom
   } catch { res.status(500).json({ error: 'Failed to generate PDF' }); }
 });
 
-// ─── GET /api/export/weekly-activities-pdf?weekId=&weekLabel= ──────
 router.get('/weekly-activities-pdf', requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const weekId = req.query['weekId'] as string | undefined;
   const weekLabel = req.query['weekLabel'] as string | undefined;
@@ -151,7 +133,6 @@ router.get('/weekly-activities-pdf', requireAdmin, async (req: Request, res: Res
       ? await supabase.from('weekly_activity_entries').select('*').eq('week_id', weekId).in('activity_id', actIds)
       : { data: [] };
 
-    // Columns: Attività | Lun…Dom — total 535pt
     const colWidths = [115, 60, 60, 60, 60, 60, 60, 60];
     const headers = ['Attività', ...DAY_LABELS];
 
@@ -170,7 +151,6 @@ router.get('/weekly-activities-pdf', requireAdmin, async (req: Request, res: Res
   } catch { res.status(500).json({ error: 'Failed to generate PDF' }); }
 });
 
-// ─── GET /api/export/commitments-pdf?weekId=&weekLabel= ───────────
 router.get('/commitments-pdf', requireAdmin, async (req: Request, res: Response): Promise<void> => {
   const weekId = req.query['weekId'] as string | undefined;
   const weekLabel = req.query['weekLabel'] as string | undefined;
@@ -186,7 +166,6 @@ router.get('/commitments-pdf', requireAdmin, async (req: Request, res: Response)
       ? await supabase.from('commitments').select('*').eq('week_id', weekId).in('ragazzo_id', ragazziIds)
       : { data: [] };
 
-    // Columns: Ragazzo | Lun…Dom — total 535pt
     const colWidths = [115, 60, 60, 60, 60, 60, 60, 60];
     const headers = ['Ragazzo', ...DAY_LABELS];
 
@@ -201,6 +180,123 @@ router.get('/commitments-pdf', requireAdmin, async (req: Request, res: Response)
     const doc = initDoc(res, `commitments-${weekId}.pdf`);
     const tableY = drawTitle(doc, 'Impegni Settimanali', weekLabel ?? weekId);
     drawTable(doc, headers, rows, colWidths, tableY);
+    doc.end();
+  } catch { res.status(500).json({ error: 'Failed to generate PDF' }); }
+});
+
+function drawWashingMachineTable(
+  doc: PdfDoc,
+  ragazzi: { id: string; first_name: string; last_name: string }[],
+  daysInMonth: number,
+  year: number,
+  month: number,
+  checked: Set<string>,
+  startY: number,
+): void {
+  const now = new Date();
+  const todayDay = (now.getFullYear() === year && now.getMonth() + 1 === month) ? now.getDate() : -1;
+
+  const usableW = 535;
+  const dayColW = 35;
+  const n = ragazzi.length;
+  const subColW = n > 0 ? Math.floor((usableW - dayColW) / n / 2) : 40;
+  const ragW = subColW * 2;
+  const totalW = dayColW + n * ragW;
+  const H1 = 18;
+  const H2 = 14;
+  const ROW = 17;
+  let y = startY;
+
+  doc.rect(PAGE_MARGIN, y, totalW, H1 + H2).fill(HEADER_BG);
+  doc.font('Helvetica-Bold').fontSize(8).fillColor('white');
+  doc.text('Giorno', PAGE_MARGIN + 2, y + (H1 + H2) / 2 - 4, { width: dayColW - 4, align: 'center', lineBreak: false });
+
+  let cx = PAGE_MARGIN + dayColW;
+  ragazzi.forEach((r) => {
+    doc.font('Helvetica-Bold').fontSize(7.5).fillColor('white');
+    doc.text(`${r.first_name} ${r.last_name}`, cx + 2, y + 4, { width: ragW - 4, align: 'center', lineBreak: false });
+    cx += ragW;
+  });
+
+  doc.moveTo(PAGE_MARGIN + dayColW, y + H1).lineTo(PAGE_MARGIN + totalW, y + H1)
+    .strokeColor('rgba(255,255,255,0.25)').lineWidth(0.5).stroke();
+
+  cx = PAGE_MARGIN + dayColW;
+  ragazzi.forEach(() => {
+    doc.font('Helvetica').fontSize(7).fillColor('white');
+    doc.text('V',     cx,            y + H1 + 3, { width: subColW, align: 'center', lineBreak: false });
+    doc.text('L e A', cx + subColW,  y + H1 + 3, { width: subColW, align: 'center', lineBreak: false });
+    cx += ragW;
+  });
+
+  cx = PAGE_MARGIN + dayColW;
+  ragazzi.forEach(() => {
+    doc.moveTo(cx + subColW, y + H1).lineTo(cx + subColW, y + H1 + H2)
+      .strokeColor('rgba(255,255,255,0.25)').lineWidth(0.5).stroke();
+    doc.moveTo(cx + ragW, y).lineTo(cx + ragW, y + H1 + H2)
+      .strokeColor('rgba(255,255,255,0.25)').lineWidth(0.5).stroke();
+    cx += ragW;
+  });
+
+  y += H1 + H2;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const isToday = day === todayDay;
+
+    doc.rect(PAGE_MARGIN, y, dayColW, ROW).fill(isToday ? '#fde68a' : '#e8e6e3');
+
+    cx = PAGE_MARGIN + dayColW;
+    ragazzi.forEach((_, ri) => {
+      doc.rect(cx, y, ragW, ROW).fill(isToday ? '#fef9c3' : (ri % 2 === 0 ? '#ffffff' : '#f4f3f2'));
+      cx += ragW;
+    });
+
+    doc.rect(PAGE_MARGIN, y, totalW, ROW).stroke('#d6d3d1');
+
+    doc.font('Helvetica-Bold').fontSize(8).fillColor('#374151');
+    doc.text(String(day), PAGE_MARGIN + 2, y + (ROW - 8) / 2, { width: dayColW - 4, align: 'center', lineBreak: false });
+
+    cx = PAGE_MARGIN + dayColW;
+    ragazzi.forEach((r) => {
+      const vOk  = checked.has(`${r.id}|${dateStr}|V`);
+      const laOk = checked.has(`${r.id}|${dateStr}|LA`);
+      doc.font('Helvetica-Bold').fontSize(11).fillColor('#4338ca');
+      if (vOk)  doc.text('×', cx,            y + (ROW - 10) / 2, { width: subColW, align: 'center', lineBreak: false });
+      if (laOk) doc.text('×', cx + subColW,  y + (ROW - 10) / 2, { width: subColW, align: 'center', lineBreak: false });
+      doc.moveTo(cx + subColW, y).lineTo(cx + subColW, y + ROW).strokeColor('#d6d3d1').lineWidth(0.5).stroke();
+      doc.moveTo(cx + ragW,    y).lineTo(cx + ragW,    y + ROW).strokeColor('#d6d3d1').lineWidth(0.5).stroke();
+      cx += ragW;
+    });
+
+    y += ROW;
+    if (y > doc.page.height - PAGE_MARGIN - 20) { doc.addPage(); y = PAGE_MARGIN; }
+  }
+}
+
+router.get('/washing-machine-pdf', requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  const year  = parseInt(req.query['year']  as string);
+  const month = parseInt(req.query['month'] as string);
+  const monthLabel = req.query['monthLabel'] as string | undefined;
+  if (!year || !month) { res.status(400).json({ error: 'year and month are required' }); return; }
+
+  try {
+    const { data: ragazzi } = await supabase
+      .from('ragazzi').select('id, first_name, last_name')
+      .eq('owner_admin_id', req.user.id).order('last_name');
+
+    const start    = `${year}-${String(month).padStart(2, '0')}-01`;
+    const nextMon  = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const { data: entries } = await supabase
+      .from('washing_machine_entries').select('ragazzo_id, date, entry_type')
+      .eq('owner_admin_id', req.user.id).gte('date', start).lt('date', nextMon);
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const checked = new Set((entries ?? []).map((e) => `${e.ragazzo_id}|${e.date}|${e.entry_type}`));
+
+    const doc = initDoc(res, `lavatrice-${year}-${String(month).padStart(2, '0')}.pdf`);
+    const tableY = drawTitle(doc, 'Lavatrice', monthLabel ?? `${year}/${month}`);
+    drawWashingMachineTable(doc, ragazzi ?? [], daysInMonth, year, month, checked, tableY);
     doc.end();
   } catch { res.status(500).json({ error: 'Failed to generate PDF' }); }
 });

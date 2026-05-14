@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useAppContext } from '../../store/AppContext';
-import { apiGet, apiPost, apiDelete } from '../../lib/api';
+import { apiGet, apiPost, apiDelete, apiDownloadFile } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import {
   MOCK_RAGAZZI,
@@ -150,6 +150,12 @@ export default function WashingMachinePage() {
         <div className='flex items-center gap-3'>
           <Button
               className='bg-indigo-600 hover:bg-indigo-800 text-white'
+              onClick={async () => {
+                await apiDownloadFile(
+                  `/api/export-pdf/washing-machine-pdf?year=${month.year}&month=${month.month}&monthLabel=${encodeURIComponent(month.label)}`,
+                  `lavatrice-${month.year}-${String(month.month).padStart(2, '0')}.pdf`,
+                );
+              }}
             >
               {t('wa_download_pdf', lang)} ({month.label})
             </Button>
