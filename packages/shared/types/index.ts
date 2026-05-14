@@ -158,6 +158,19 @@ export interface WeeklyActivityEntry {
   text: string;
 }
 
+// ─── Washing machine ───────────────────────────────────────────────
+
+// 'V' and 'LA' are the two independent toggles each ragazzo has per day.
+// Their semantics live in the UI labels; the backend just stores X marks.
+export type WashingMachineEntryType = 'V' | 'LA';
+
+export interface WashingMachineEntry {
+  id: string;
+  ragazzoId: string;
+  date: string; // YYYY-MM-DD
+  entryType: WashingMachineEntryType;
+}
+
 // ─── Notifications ─────────────────────────────────────────────────
 
 export interface Notification {

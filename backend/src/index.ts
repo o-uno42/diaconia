@@ -12,6 +12,7 @@ import commitmentsRoutes from './routes/commitments';
 import notificationsRoutes from './routes/notifications';
 import transcribeRoutes from './routes/transcribe';
 import weeklyActivitiesRoutes from './routes/weeklyActivities';
+import washingMachineRoutes from './routes/washingMachine';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -36,6 +37,7 @@ app.use('/api/task-templates', authMiddleware, taskTemplatesRoutes);
 app.use('/api/commitments', authMiddleware, commitmentsRoutes);
 app.use('/api/notifications', authMiddleware, notificationsRoutes);
 app.use('/api/weekly-activities', authMiddleware, weeklyActivitiesRoutes);
+app.use('/api/washing-machine', authMiddleware, washingMachineRoutes);
 
 // Nested routes under ragazzi
 app.use('/api/ragazzi', authMiddleware, reportsRoutes);
