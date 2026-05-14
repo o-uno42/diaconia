@@ -9,6 +9,7 @@ import AdminSidebar from './components/layout/AdminSidebar';
 import RagazzoBottomNav from './components/layout/RagazzoBottomNav';
 import RagazziListPage from './components/profile/RagazziListPage';
 import ProfilePage from './components/profile/ProfilePage';
+import AdminProfilePage from './components/profile/AdminProfilePage';
 import TaskCalendarPage from './components/tasks/TaskCalendarPage';
 import RagazzoTaskView from './components/tasks/RagazzoTaskView';
 import ReportPage from './components/report/ReportPage';
@@ -104,6 +105,7 @@ function AppRoutes() {
           <Route path="commitments" element={<CommitmentsCalendarPage />} />
           <Route path="weekly-activities" element={<WeeklyActivitiesPage />} />
           <Route path="stats" element={<TaskStatsPage />} />
+          <Route path="profile" element={<AdminProfilePage />} />
         </Route>
 
         {/* Ragazzo routes */}
@@ -129,3 +131,4 @@ export default function App() {
     </AppProvider>
   );
 }
+

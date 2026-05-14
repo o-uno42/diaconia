@@ -14,7 +14,35 @@ export interface UserProfile {
   textScalePercent?: number;
   highContrast?: boolean;
   firstName?: string;
+  adminSettings?: AdminSettings;
 }
+
+// Admin-controlled feature flags. All default to true; the admin can
+// disable individual capabilities for themselves or for their ragazzi.
+// Frontend wiring is not applied yet — these only persist the choices.
+export interface AdminSettings {
+  // Admin-side features (affect what the admin sees)
+  useWeeklyTasksCalendar: boolean;
+  useWeeklyCommitmentsCalendar: boolean;
+  useWeeklyActivitiesCalendar: boolean;
+  useMonthlyTaskStats: boolean;
+  useWashingMachine: boolean;
+  useMonthlyReports: boolean;
+  // Ragazzi-side features (set by the admin, affect their ragazzi)
+  ragazziCanSeeTaskScores: boolean;
+  ragazziCanSeeWeeklyActivities: boolean;
+}
+
+export const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
+  useWeeklyTasksCalendar: true,
+  useWeeklyCommitmentsCalendar: true,
+  useWeeklyActivitiesCalendar: true,
+  useMonthlyTaskStats: true,
+  useWashingMachine: true,
+  useMonthlyReports: true,
+  ragazziCanSeeTaskScores: true,
+  ragazziCanSeeWeeklyActivities: true,
+};
 
 // ─── Ragazzo ───────────────────────────────────────────────────────
 

@@ -2,8 +2,20 @@ import { Router, Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { authMiddleware } from '../middleware/auth';
+import { DEFAULT_ADMIN_SETTINGS, type AdminSettings } from '../../../packages/shared/types';
 
 const router = Router();
+
+const ADMIN_SETTING_COLUMNS: Record<keyof AdminSettings, string> = {
+  useWeeklyTasksCalendar: 'use_weekly_tasks_calendar',
+  useWeeklyCommitmentsCalendar: 'use_weekly_commitments_calendar',
+  useWeeklyActivitiesCalendar: 'use_weekly_activities_calendar',
+  useMonthlyTaskStats: 'use_monthly_task_stats',
+  useWashingMachine: 'use_washing_machine',
+  useMonthlyReports: 'use_monthly_reports',
+  ragazziCanSeeTaskScores: 'ragazzi_can_see_task_scores',
+  ragazziCanSeeWeeklyActivities: 'ragazzi_can_see_weekly_activities',
+};
 
 // POST /api/auth/login — JWT must be in Authorization: Bearer header.
 // Frontend signs in via Supabase client (gets JWT), then calls this to get
@@ -160,6 +172,63 @@ router.patch('/me/preferences', authMiddleware, async (req: Request, res: Respon
     });
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to update preferences' });
+  }
+});
+
+// PATCH /api/auth/me/admin-settings — admin-only feature flags.
+// Accepts a partial AdminSettings object; only the supplied keys are
+// updated. Returns the full, normalized settings object on success.
+router.patch('/me/admin-settings', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  if (req.user.role !== 'admin') {
+    res.status(403).json({ error: 'Admin settings are only available for admin role' });
+    return;
+  }
+
+  const body = (req.body ?? {}) as Partial<Record<keyof AdminSettings, unknown>>;
+  const updates: Record<string, boolean> = {};
+
+  for (const key of Object.keys(ADMIN_SETTING_COLUMNS) as (keyof AdminSettings)[]) {
+    if (body[key] === undefined) continue;
+    if (typeof body[key] !== 'boolean') {
+      res.status(400).json({ error: `Invalid value for ${key}` });
+      return;
+    }
+    updates[ADMIN_SETTING_COLUMNS[key]] = body[key] as boolean;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    res.status(400).json({ error: 'No valid fields to update' });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', req.user.id)
+      .select('use_weekly_tasks_calendar, use_weekly_commitments_calendar, use_weekly_activities_calendar, use_monthly_task_stats, use_washing_machine, use_monthly_reports, ragazzi_can_see_task_scores, ragazzi_can_see_weekly_activities')
+      .single();
+
+    if (error || !data) {
+      res.status(500).json({ error: error?.message ?? 'Failed to update admin settings' });
+      return;
+    }
+
+    const row = data as Record<string, boolean | null>;
+    const adminSettings: AdminSettings = {
+      useWeeklyTasksCalendar: row['use_weekly_tasks_calendar'] ?? DEFAULT_ADMIN_SETTINGS.useWeeklyTasksCalendar,
+      useWeeklyCommitmentsCalendar: row['use_weekly_commitments_calendar'] ?? DEFAULT_ADMIN_SETTINGS.useWeeklyCommitmentsCalendar,
+      useWeeklyActivitiesCalendar: row['use_weekly_activities_calendar'] ?? DEFAULT_ADMIN_SETTINGS.useWeeklyActivitiesCalendar,
+      useMonthlyTaskStats: row['use_monthly_task_stats'] ?? DEFAULT_ADMIN_SETTINGS.useMonthlyTaskStats,
+      useWashingMachine: row['use_washing_machine'] ?? DEFAULT_ADMIN_SETTINGS.useWashingMachine,
+      useMonthlyReports: row['use_monthly_reports'] ?? DEFAULT_ADMIN_SETTINGS.useMonthlyReports,
+      ragazziCanSeeTaskScores: row['ragazzi_can_see_task_scores'] ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeTaskScores,
+      ragazziCanSeeWeeklyActivities: row['ragazzi_can_see_weekly_activities'] ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeWeeklyActivities,
+    };
+
+    res.json({ data: { adminSettings } });
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to update admin settings' });
   }
 });
 

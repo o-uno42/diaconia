@@ -1,17 +1,28 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_REPORTS, MOCK_RAGAZZI } from '../../lib/mockData';
 import { t, type TranslationKeys } from '../../i18n/translations';
-import type { ReportEntry, ReportSections } from '@shared/types';
+import type { Language, ReportEntry, ReportSections } from '@shared/types';
 import { useSpeech } from '../../hooks/useSpeech';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import Highlight from '../ui/Highlight';
 
 type SectionDef = { key: keyof ReportSections; labelKey: keyof TranslationKeys; titleColor: string };
+
+// Returns the [start, end) instants of the month at `offset` (0 = current month)
+// plus a localized "Maggio 2026"-style label.
+function getMonthRange(offset: number, lang: Language) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 1);
+  const raw = new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(start);
+  const label = raw.charAt(0).toUpperCase() + raw.slice(1);
+  return { start, end, label };
+}
 
 // Left grid (3x2): 6 thematic areas
 const LEFT_SECTION_KEYS: SectionDef[] = [
@@ -44,7 +55,9 @@ export default function ReportPage() {
   const [addArea, setAddArea] = useState<keyof ReportSections | null>(null);
   const [addDate, setAddDate] = useState(new Date().toISOString().slice(0, 10));
   const [addText, setAddText] = useState('');
+  const [monthOffset, setMonthOffset] = useState(0);
   const lang = state.language;
+  const monthRange = useMemo(() => getMonthRange(monthOffset, lang), [monthOffset, lang]);
   const { isListening, isTranscribing, isSupported, startListening, stopListening } = useSpeech(lang);
 
   const handleMicToggle = useCallback(() => {
@@ -139,8 +152,15 @@ export default function ReportPage() {
     : '';
 
   const renderAreaCard = ({ key, labelKey, titleColor }: SectionDef, heightClass: string) => {
+    const { start, end } = monthRange;
+    const startMs = start.getTime();
+    const endMs = end.getTime();
     const areaEntries = entries
-      .filter((e) => e.sections[key]?.trim())
+      .filter((e) => {
+        if (!e.sections[key]?.trim()) return false;
+        const ts = new Date(e.date).getTime();
+        return ts >= startMs && ts < endMs;
+      })
       .sort((a, b) => b.date.localeCompare(a.date));
 
     return (
@@ -190,23 +210,39 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-800">{t('report_title', lang)} {t('report_of', lang)} {ragazzo?.firstName} {ragazzo?.lastName}</h1>
-        </div>
-        <Button>Scarica il report</Button>
+    <div className="animate-fade-in h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 shrink-0">
+        <h1 className="text-2xl font-bold text-stone-800">
+          {t('report_title', lang)} {t('report_of', lang)} {ragazzo?.firstName} {ragazzo?.lastName}{' '}
+          <span className="text-[17px] text-violet-800">({monthRange.label})</span>
+        </h1>
+        <Button className='bg-indigo-600 hover:bg-indigo-800 text-white'>
+          {t('report_download', lang)} ({monthRange.label})
+        </Button>
+      </div>
+
+      {/* Month selector */}
+      <div className="flex items-center justify-center gap-3 mb-4 shrink-0">
+        <Button variant="ghost" size="sm" onClick={() => setMonthOffset(monthOffset - 1)}>
+          ← {t('stats_prev_month', lang)}
+        </Button>
+        <Button variant="secondary" size="sm" onClick={() => setMonthOffset(0)}>
+          {t('stats_current_month', lang)}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setMonthOffset(monthOffset + 1)}>
+          {t('stats_next_month', lang)} →
+        </Button>
       </div>
 
       {/* Layout: 3x2 grid on the left for the 6 thematic areas, then a
           narrower right column with the "Colloquio individuale" card spanning
           the full height (so it visually matches two stacked left cards). */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="lg:flex-[3] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {LEFT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-[calc((100vh-10rem)/2)]'))}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4">
+        <div className="lg:flex-[3] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-4 min-h-0">
+          {LEFT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-full min-h-0'))}
         </div>
-        <div className="lg:flex-1 flex flex-col">
-          {RIGHT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-[calc(100vh-9rem)]'))}
+        <div className="lg:flex-1 flex flex-col min-h-0">
+          {RIGHT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-full min-h-0'))}
         </div>
       </div>
 

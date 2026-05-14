@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../lib/supabase';
-import type { UserProfile } from '../../../packages/shared/types';
+import type { UserProfile, AdminSettings } from '../../../packages/shared/types';
+import { DEFAULT_ADMIN_SETTINGS } from '../../../packages/shared/types';
 
 // Extend Express Request
 declare global {
@@ -39,7 +40,7 @@ export async function authMiddleware(
     // Fetch profile for role info
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('role, ragazzo_id, text_scale_percent, high_contrast')
+      .select('role, ragazzo_id, text_scale_percent, high_contrast, use_weekly_tasks_calendar, use_weekly_commitments_calendar, use_weekly_activities_calendar, use_monthly_task_stats, use_washing_machine, use_monthly_reports, ragazzi_can_see_task_scores, ragazzi_can_see_weekly_activities')
       .eq('id', user.id)
       .single();
 
@@ -48,13 +49,29 @@ export async function authMiddleware(
       return;
     }
 
+    const row = profile as Record<string, unknown>;
+    const role = row['role'] as UserProfile['role'];
+    const adminSettings: AdminSettings | undefined = role === 'admin'
+      ? {
+          useWeeklyTasksCalendar: (row['use_weekly_tasks_calendar'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useWeeklyTasksCalendar,
+          useWeeklyCommitmentsCalendar: (row['use_weekly_commitments_calendar'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useWeeklyCommitmentsCalendar,
+          useWeeklyActivitiesCalendar: (row['use_weekly_activities_calendar'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useWeeklyActivitiesCalendar,
+          useMonthlyTaskStats: (row['use_monthly_task_stats'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useMonthlyTaskStats,
+          useWashingMachine: (row['use_washing_machine'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useWashingMachine,
+          useMonthlyReports: (row['use_monthly_reports'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.useMonthlyReports,
+          ragazziCanSeeTaskScores: (row['ragazzi_can_see_task_scores'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeTaskScores,
+          ragazziCanSeeWeeklyActivities: (row['ragazzi_can_see_weekly_activities'] as boolean | null) ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeWeeklyActivities,
+        }
+      : undefined;
+
     req.user = {
       id: user.id,
-      role: profile.role as UserProfile['role'],
+      role,
       email: user.email ?? '',
-      ragazzoId: profile.ragazzo_id ?? undefined,
-      textScalePercent: profile.text_scale_percent ?? 100,
-      highContrast: profile.high_contrast ?? false,
+      ragazzoId: (row['ragazzo_id'] as string | null) ?? undefined,
+      textScalePercent: (row['text_scale_percent'] as number | null) ?? 100,
+      highContrast: (row['high_contrast'] as boolean | null) ?? false,
+      adminSettings,
     };
 
     next();

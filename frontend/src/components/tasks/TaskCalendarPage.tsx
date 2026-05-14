@@ -10,6 +10,7 @@ import NotificationBell from '../layout/NotificationBell';
 import Card from '../ui/Card';
 import manageImg from '../../assets/manage.png';
 import type { TaskCompletion } from '@shared/types';
+import DownloadPDFFAB from '../ui/DownloadPDFFAB';
 
 const DRAG_MIME = 'application/x-task-template';
 
@@ -280,6 +281,8 @@ export default function TaskCalendarPage() {
         </div>
         </>
       )}
+
+      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} />
 
       {/* Decorative image — fixed so it's not clipped by layout overflow */}
       <img

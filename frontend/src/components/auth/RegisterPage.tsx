@@ -192,8 +192,8 @@ export default function RegisterPage() {
           </div>
         </form>
 
-        <div className="mt-4 text-center animate-slide-up" style={{ animationDelay: '200ms' }}>
-          <Link to="/login" className="text-sm text-stone-800/60 hover:text-stone-800 transition-colors">
+        <div className="mt-6 text-center animate-slide-up" style={{ animationDelay: '200ms' }}>
+          <Link to="/login" className="text-sm text-sky-600 hover:text-sky-800 transition-colors">
             {t('auth_already_account', lang)}
           </Link>
         </div>

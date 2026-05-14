@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../lib/supabase';
-import { requireAdminOwnsRagazzoOwnsRagazzo } from '../middleware/roleGuard';
+import { requireAdminOwnsRagazzo } from '../middleware/roleGuard';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, type ReactNode } from 'react';
-import type { UserProfile, Ragazzo, Task, Notification, Language } from '@shared/types';
+import type { UserProfile, Ragazzo, Task, Notification, Language, AdminSettings } from '@shared/types';
 
 // ─── State ──────────────────────────────────────────────────────────
 interface AppState {
@@ -34,6 +34,7 @@ type AppAction =
   | { type: 'SET_LANGUAGE'; payload: Language }
   | { type: 'SET_TEXT_SCALE_PERCENT'; payload: number }
   | { type: 'SET_HIGH_CONTRAST'; payload: boolean }
+  | { type: 'SET_ADMIN_SETTINGS'; payload: AdminSettings }
   | { type: 'SET_RAGAZZI'; payload: Ragazzo[] }
   | { type: 'UPDATE_RAGAZZO'; payload: Ragazzo }
   | { type: 'ADD_RAGAZZO'; payload: Ragazzo }
@@ -75,6 +76,13 @@ function appReducer(state: AppState, action: AppAction): AppState {
         highContrast: action.payload,
         currentUser: state.currentUser
           ? { ...state.currentUser, highContrast: action.payload }
+          : state.currentUser,
+      };
+    case 'SET_ADMIN_SETTINGS':
+      return {
+        ...state,
+        currentUser: state.currentUser
+          ? { ...state.currentUser, adminSettings: action.payload }
           : state.currentUser,
       };
     case 'SET_RAGAZZI':

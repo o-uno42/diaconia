@@ -60,7 +60,7 @@ type TranslationKeys = {
   report_cognitive_area: string;
   report_individual_session: string; report_save: string; report_voice: string;
   report_edit: string;
-  report_empty: string;
+  report_empty: string; report_download: string;
   // Photos
   photo_title: string; photo_upload: string; photo_delete: string; photo_confirm_delete: string;
   photo_preview: string; photo_confirm_delete_title: string; photo_demo_warning: string;
@@ -78,6 +78,20 @@ type TranslationKeys = {
   notif_title: string; notif_mark_all: string; notif_empty: string;
   // Profile
   profile_personal_info: string; profile_settings: string;
+  // Admin profile
+  nav_admin_profile: string;
+  admin_profile_title: string;
+  admin_profile_features_heading: string;
+  admin_profile_ragazzi_heading: string;
+  admin_profile_feature_weekly_tasks: string;
+  admin_profile_feature_weekly_commitments: string;
+  admin_profile_feature_weekly_activities: string;
+  admin_profile_feature_monthly_task_stats: string;
+  admin_profile_feature_washing_machine: string;
+  admin_profile_feature_monthly_reports: string;
+  admin_profile_ragazzi_see_task_scores: string;
+  admin_profile_ragazzi_see_weekly_activities: string;
+  admin_profile_save_error: string;
   // Accessibility
   settings_text_size: string; settings_text_size_normal: string; settings_text_size_large: string;
   settings_visual_accessibility: string;
@@ -166,7 +180,7 @@ const translations: TranslationsMap = {
     report_cognitive_area: 'Area cognitiva',
     report_individual_session: 'Colloquio individuale', report_save: 'Salva report', report_voice: 'Dettatura vocale',
     report_edit: 'Modifica report',
-    report_empty: 'Report vuoto',
+    report_empty: 'Report vuoto', report_download: 'Scarica il report',
     photo_title: 'Documenti', photo_upload: 'Carica un documento', photo_delete: 'Elimina',
     photo_confirm_delete: 'Sei sicuro di voler eliminare questo file?',
     photo_preview: 'Anteprima', photo_confirm_delete_title: 'Conferma eliminazione',
@@ -183,6 +197,19 @@ const translations: TranslationsMap = {
     wa_download_pdf: 'Scarica PDF',
     notif_title: 'Notifiche', notif_mark_all: 'Segna tutto come letto', notif_empty: 'Nessuna notifica',
     profile_personal_info: 'Informazioni personali', profile_settings: 'Impostazioni',
+    nav_admin_profile: 'Profilo',
+    admin_profile_title: 'Profilo admin',
+    admin_profile_features_heading: 'Funzionalità abilitate',
+    admin_profile_ragazzi_heading: 'Impostazioni per i ragazzi',
+    admin_profile_feature_weekly_tasks: 'Utilizzo calendario "Compiti settimanali"',
+    admin_profile_feature_weekly_commitments: 'Utilizzo calendario "Impegni settimanali"',
+    admin_profile_feature_weekly_activities: 'Utilizzo calendario "Attività settimanali"',
+    admin_profile_feature_monthly_task_stats: 'Utilizzo "Statistiche mensili compiti"',
+    admin_profile_feature_washing_machine: 'Utilizzo "Gestione lavatrice"',
+    admin_profile_feature_monthly_reports: 'Utilizzo "Report mensili"',
+    admin_profile_ragazzi_see_task_scores: 'I ragazzi possono vedere i punteggi dei compiti',
+    admin_profile_ragazzi_see_weekly_activities: 'I ragazzi possono vedere il calendario "Attività settimanali"',
+    admin_profile_save_error: 'Impossibile aggiornare le impostazioni',
     settings_text_size: 'Dimensione testo', settings_text_size_normal: 'Normale', settings_text_size_large: 'Grande',
     settings_visual_accessibility: 'Accessibilità visiva',
     keywords_empty: 'Nessuna parola chiave', keywords_new_placeholder: 'Nuova parola chiave...',
@@ -225,7 +252,7 @@ const translations: TranslationsMap = {
     task_week: 'Week', task_prev_week: 'Previous week', task_next_week: 'Next week',
     day_mon: 'Mon', day_tue: 'Tue', day_wed: 'Wed', day_thu: 'Thu',
     day_fri: 'Fri', day_sat: 'Sat', day_sun: 'Sun',
-    report_title: 'Report', report_add: 'New report', report_date: 'Date',
+    report_title: 'Report', report_add: 'New report', report_date: 'Date', report_download: 'Download report',
     report_daily_area: 'Daily area', report_health: 'Health', report_family_area: 'Family area',
     report_social_relational: 'Social-relational', report_psycho_affective: 'Psycho-affective',
     report_individual_session: 'Individual session', report_save: 'Save report', report_voice: 'Voice input',
@@ -256,7 +283,7 @@ const translations: TranslationsMap = {
     task_week: 'Semaine', task_prev_week: 'Semaine précédente', task_next_week: 'Semaine suivante',
     day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Jeu',
     day_fri: 'Ven', day_sat: 'Sam', day_sun: 'Dim',
-    report_title: 'Rapport', report_add: 'Nouveau rapport', report_date: 'Date',
+    report_title: 'Rapport', report_add: 'Nouveau rapport', report_date: 'Date', report_download: 'Télécharger le rapport',
     report_daily_area: 'Zone quotidienne', report_health: 'Santé', report_family_area: 'Zone familiale',
     report_social_relational: 'Socio-relationnel', report_psycho_affective: 'Psycho-affectif',
     report_individual_session: 'Session individuelle', report_save: 'Enregistrer rapport', report_voice: 'Dictée vocale',
@@ -287,7 +314,7 @@ const translations: TranslationsMap = {
     task_week: 'الأسبوع', task_prev_week: 'الأسبوع السابق', task_next_week: 'الأسبوع التالي',
     day_mon: 'اثن', day_tue: 'ثلا', day_wed: 'أرب', day_thu: 'خمي',
     day_fri: 'جمع', day_sat: 'سبت', day_sun: 'أحد',
-    report_title: 'التقرير', report_add: 'تقرير جديد', report_date: 'التاريخ',
+    report_title: 'التقرير', report_add: 'تقرير جديد', report_date: 'التاريخ', report_download: 'تحميل التقرير',
     report_daily_area: 'المجال اليومي', report_health: 'الصحة', report_family_area: 'المجال العائلي',
     report_social_relational: 'الاجتماعي', report_psycho_affective: 'النفسي-العاطفي',
     report_individual_session: 'الجلسة الفردية', report_save: 'حفظ التقرير', report_voice: 'إدخال صوتي',
