@@ -24,6 +24,7 @@ type TranslationKeys = {
   auth_first_name: string; auth_last_name: string;
   auth_password_confirm: string; auth_passwords_mismatch: string;
   auth_no_account: string; auth_already_account: string;
+  auth_admin_only_notice: string;
   // Dashboard
   dash_title: string; dash_active_ragazzi: string; dash_weekly_tasks: string;
   dash_completions: string; dash_pending: string;
@@ -104,6 +105,7 @@ type TranslationKeys = {
   admin_profile_feature_monthly_reports: string;
   admin_profile_ragazzi_see_task_scores: string;
   admin_profile_ragazzi_see_weekly_activities: string;
+  admin_profile_ragazzi_see_keywords: string;
   admin_profile_save_error: string;
   // Accessibility
   settings_text_size: string; settings_text_size_normal: string; settings_text_size_large: string;
@@ -156,6 +158,7 @@ const translations: TranslationsMap = {
     auth_first_name: 'Nome', auth_last_name: 'Cognome',
     auth_password_confirm: 'Conferma password', auth_passwords_mismatch: 'Le password non coincidono',
     auth_no_account: 'Non hai un account? Registrati', auth_already_account: 'Hai già un account? Accedi',
+    auth_admin_only_notice: 'È possibile registrarsi solo in quanto admin. Se sei uno dei ragazzi, chiedi agli operatori di Diaconia di aggiungerti.',
     dash_title: 'Panoramica', dash_active_ragazzi: 'Ragazzi registrati in piattaforma', dash_weekly_tasks: 'Compiti di questa settimana',
     dash_completions: 'Compiti completati questa settimana', dash_pending: 'Compiti non ancora svolti',
     dash_welcome: 'Benvenuto nella piattaforma Diaconia', dash_quick_actions: 'Azioni rapide',
@@ -222,8 +225,8 @@ const translations: TranslationsMap = {
     wa_ragazzo_empty: 'Nessuna attività in programma questa settimana.',
     notif_title: 'Notifiche', notif_mark_all: 'Segna tutto come letto', notif_empty: 'Nessuna notifica',
     profile_personal_info: 'Informazioni personali', profile_settings: 'Impostazioni',
-    nav_admin_profile: 'Profilo',
-    admin_profile_title: 'Profilo admin',
+    nav_admin_profile: 'Permessi e impostazioni',
+    admin_profile_title: 'Permessi e impostazioni',
     admin_profile_features_heading: 'Funzionalità abilitate',
     admin_profile_ragazzi_heading: 'Impostazioni per i ragazzi',
     admin_profile_feature_weekly_tasks: 'Utilizzo calendario "Compiti settimanali"',
@@ -234,6 +237,7 @@ const translations: TranslationsMap = {
     admin_profile_feature_monthly_reports: 'Utilizzo "Report mensili"',
     admin_profile_ragazzi_see_task_scores: 'I ragazzi possono vedere i punteggi dei compiti',
     admin_profile_ragazzi_see_weekly_activities: 'I ragazzi possono vedere il calendario "Attività settimanali"',
+    admin_profile_ragazzi_see_keywords: 'I ragazzi possono vedere le proprie parole chiave',
     admin_profile_save_error: 'Impossibile aggiornare le impostazioni',
     settings_text_size: 'Dimensione testo', settings_text_size_normal: 'Normale', settings_text_size_large: 'Grande',
     settings_visual_accessibility: 'Accessibilità visiva',
@@ -265,6 +269,7 @@ const translations: TranslationsMap = {
     auth_first_name: 'First name', auth_last_name: 'Last name',
     auth_password_confirm: 'Confirm password', auth_passwords_mismatch: 'Passwords do not match',
     auth_no_account: "Don't have an account? Sign up", auth_already_account: 'Already have an account? Sign in',
+    auth_admin_only_notice: 'Registration is only available for admins. If you are one of the residents, ask the Diaconia staff to add you.',
     dash_title: 'Dashboard', dash_active_ragazzi: 'Active residents', dash_weekly_tasks: 'Weekly tasks',
     dash_completions: 'Completions', dash_pending: 'Pending',
     rag_title: 'Residents', rag_add: 'Add resident', rag_first_name: 'First name', rag_last_name: 'Last name',
@@ -317,6 +322,7 @@ const translations: TranslationsMap = {
     points_title: 'Points', points_weekly: 'Points hebdomadaires', chart_points: 'Points',
     commit_title: 'Engagements hebdomadaires', commit_add: 'Ajouter engagement', commit_text: 'Texte',
     notif_title: 'Notifications', notif_mark_all: 'Tout marquer comme lu', notif_empty: 'Aucune notification',
+    auth_admin_only_notice: "L'inscription n'est possible qu'en tant qu'admin. Si vous êtes l'un des résidents, demandez aux opérateurs de Diaconia de vous ajouter.",
     ragazzo_home_title: 'Bon retour a la maison!',
     common_loading: 'Chargement...', common_error: 'Une erreur est survenue', common_save: 'Enregistrer',
     common_cancel: 'Annuler', common_confirm: 'Confirmer', common_close: 'Fermer',

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { apiGet } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_WEEKLY_ACTIVITIES, getMockWeeklyActivityEntries } from '../../lib/mockData';
 import { getWeekId, formatWeekRange } from '../../hooks/useTasks';
 import { t, getFullDayLabels } from '../../i18n/translations';
-import type { WeeklyActivity, WeeklyActivityEntry } from '@shared/types';
+import { DEFAULT_ADMIN_SETTINGS, type WeeklyActivity, type WeeklyActivityEntry } from '@shared/types';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 
@@ -23,6 +24,8 @@ function getRomeTodayDayIdx(): number {
 export default function RagazzoWeeklyActivitiesView() {
   const { state } = useAppContext();
   const lang = state.language;
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
+  const sectionEnabled = settings.useWeeklyActivitiesCalendar && settings.ragazziCanSeeWeeklyActivities;
   const [weekOffset, setWeekOffset] = useState(0);
   const weekId = getWeekId(weekOffset);
   const dayLabels = getFullDayLabels(lang);
@@ -50,6 +53,8 @@ export default function RagazzoWeeklyActivitiesView() {
       if (res.data) setEntries(res.data);
     });
   }, [weekId]);
+
+  if (!sectionEnabled) return <Navigate to="/ragazzo" replace />;
 
   const activityName = (id: string) => activities.find((a) => a.id === id)?.name ?? '';
 

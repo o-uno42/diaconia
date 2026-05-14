@@ -11,7 +11,7 @@ import Badge from '../ui/Badge';
 import Modal from '../ui/Modal';
 import homeImg from '../../assets/home.png';
 import NotificationBell from '../layout/NotificationBell';
-import type { Ragazzo } from '@shared/types';
+import { DEFAULT_ADMIN_SETTINGS, type Ragazzo } from '@shared/types';
 import { formatWeekRange } from '@/hooks/useTasks';
 import { useTaskTemplates } from '@/hooks/useTaskTemplates';
 
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const lang = state.language;
   const { templates, fetchTemplates, createTemplate } = useTaskTemplates();
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
   const [showAddTemplate, setShowAddTemplate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPoints, setNewPoints] = useState('1');
@@ -108,13 +109,15 @@ export default function AdminDashboard() {
                   >
                     <p className="font-medium text-stone-800 truncate">{r.firstName} {r.lastName}</p>
                   </div>
-                  <Button
-                    size="sm"
-                    className="animate-pulse-cta hover:animate-none shrink-0"
-                    onClick={() => navigate(`/admin/ragazzi/${r.id}/report`)}
-                  >
-                    {t('report_open', lang)}
-                  </Button>
+                  {settings.useMonthlyReports && (
+                    <Button
+                      size="sm"
+                      className="animate-pulse-cta hover:animate-none shrink-0"
+                      onClick={() => navigate(`/admin/ragazzi/${r.id}/report`)}
+                    >
+                      {t('report_open', lang)}
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

@@ -21,6 +21,7 @@ type AdminFeatureKey = keyof Pick<AdminSettings,
 type RagazziFeatureKey = keyof Pick<AdminSettings,
   | 'ragazziCanSeeTaskScores'
   | 'ragazziCanSeeWeeklyActivities'
+  | 'ragazziCanSeeKeywords'
 >;
 
 const ADMIN_FEATURES: { key: AdminFeatureKey; labelKey: keyof TranslationKeys }[] = [
@@ -35,6 +36,7 @@ const ADMIN_FEATURES: { key: AdminFeatureKey; labelKey: keyof TranslationKeys }[
 const RAGAZZI_FEATURES: { key: RagazziFeatureKey; labelKey: keyof TranslationKeys }[] = [
   { key: 'ragazziCanSeeTaskScores', labelKey: 'admin_profile_ragazzi_see_task_scores' },
   { key: 'ragazziCanSeeWeeklyActivities', labelKey: 'admin_profile_ragazzi_see_weekly_activities' },
+  { key: 'ragazziCanSeeKeywords', labelKey: 'admin_profile_ragazzi_see_keywords' },
 ];
 
 export default function AdminProfilePage() {

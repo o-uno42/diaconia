@@ -7,7 +7,6 @@ import Button from '../ui/Button';
 import logo from '../../assets/logo.png';
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<'admin' | 'ragazzo'>('admin');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,7 +36,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = await register(email, password, firstName, lastName, role);
+    const result = await register(email, password, firstName, lastName, 'admin');
     if (result.success) {
       setSuccess(true);
     }
@@ -91,22 +90,8 @@ export default function RegisterPage() {
           )}
 
           <div className="space-y-4">
-            {/* Role selector */}
-            <div className="grid grid-cols-2 gap-2">
-              {(['admin', 'ragazzo'] as const).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                    role === r
-                      ? 'bg-amber-500/20 border-amber-500/40 text-stone-800'
-                      : 'bg-white/5 border-white/10 text-stone-800/50 hover:bg-white/10'
-                  }`}
-                >
-                  {r === 'admin' ? t('role_admin', lang) : t('role_ragazzo', lang)}
-                </button>
-              ))}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500 text-amber-700 text-sm">
+              {t('auth_admin_only_notice', lang)}
             </div>
 
             <div className="grid grid-cols-2 gap-3">

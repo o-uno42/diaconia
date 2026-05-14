@@ -5,7 +5,7 @@ import { apiGet, apiPost } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_RAGAZZI } from '../../lib/mockData';
 import { t } from '../../i18n/translations';
-import type { Ragazzo, Language } from '@shared/types';
+import { DEFAULT_ADMIN_SETTINGS, type Ragazzo, type Language } from '@shared/types';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
@@ -42,6 +42,7 @@ export default function RagazziListPage() {
   const { state, dispatch } = useAppContext();
   const navigate = useNavigate();
   const lang = state.language;
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<NewRagazzoForm>(emptyForm);
@@ -194,9 +195,11 @@ export default function RagazziListPage() {
               {/* <Button variant="ghost" size="sm" className="flex-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}`); }}>
                 {t('nav_profile', lang)}
               </Button> */}
-              <Button size="sm" className="w-auto" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}/report`); }}>
-                {t('report_open', lang)}
-              </Button>
+              {settings.useMonthlyReports && (
+                <Button size="sm" className="w-auto" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}/report`); }}>
+                  {t('report_open', lang)}
+                </Button>
+              )}
             </div>
           </Card>
         ))}

@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { useTasks } from '../../hooks/useTasks';
 import { t } from '../../i18n/translations';
 import { celebrate } from '../../lib/celebrate';
+import { DEFAULT_ADMIN_SETTINGS } from '@shared/types';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import Card from '../ui/Card';
@@ -29,8 +31,13 @@ export default function RagazzoTaskView() {
   const { tasks, fetchTasks, completeTask, bookTask, weekOffset, setWeekOffset } = useTasks();
   const lang = state.language;
   const ragazzoId = state.currentUser?.ragazzoId;
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
+  const tasksEnabled = settings.useWeeklyTasksCalendar;
+  const showScores = settings.ragazziCanSeeTaskScores;
 
   useEffect(() => { fetchTasks(); }, [weekOffset, fetchTasks]);
+
+  if (!tasksEnabled) return <Navigate to="/ragazzo" replace />;
 
   const romeTodayUtc = getRomeTodayUtcDate();
   const today = romeTodayUtc.getUTCDay();
@@ -95,7 +102,9 @@ export default function RagazzoTaskView() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-stone-800">{task.name}</p>
-                    <Badge color={badgeColor} className="mt-1">+{task.points} {t('task_points', lang)}</Badge>
+                    {showScores && (
+                      <Badge color={badgeColor} className="mt-1">+{task.points} {t('task_points', lang)}</Badge>
+                    )}
                   </div>
                   {completed ? (
                     <Badge color="emerald" className="flex flex-col items-center">
@@ -137,7 +146,9 @@ export default function RagazzoTaskView() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-stone-800">{task.name}</p>
-                  <Badge color="sky" className="mt-1">{task.points} {t('task_points', lang)}</Badge>
+                  {showScores && (
+                    <Badge color="sky" className="mt-1">{task.points} {t('task_points', lang)}</Badge>
+                  )}
                 </div>
                 <Button variant="secondary" size="sm">{t('task_book', lang)}</Button>
               </div>

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { apiGet, apiPost, apiPatch, apiDelete, apiDownloadFile } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_REPORTS, MOCK_RAGAZZI } from '../../lib/mockData';
 import { t, type TranslationKeys } from '../../i18n/translations';
-import type { Language, ReportEntry, ReportSections } from '@shared/types';
+import { DEFAULT_ADMIN_SETTINGS, type Language, type ReportEntry, type ReportSections } from '@shared/types';
 import { useSpeech } from '../../hooks/useSpeech';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
@@ -57,6 +57,8 @@ export default function ReportPage() {
   const [addText, setAddText] = useState('');
   const [monthOffset, setMonthOffset] = useState(0);
   const lang = state.language;
+  const adminSettings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
+  const reportsEnabled = adminSettings.useMonthlyReports;
   const monthRange = useMemo(() => getMonthRange(monthOffset, lang), [monthOffset, lang]);
   const { isListening, isTranscribing, isSupported, startListening, stopListening } = useSpeech(lang);
 
@@ -208,6 +210,8 @@ export default function ReportPage() {
       </div>
     );
   };
+
+  if (!reportsEnabled) return <Navigate to="/admin/ragazzi" replace />;
 
   return (
     <div className="animate-fade-in h-full flex flex-col">

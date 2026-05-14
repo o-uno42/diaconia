@@ -2,23 +2,34 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAppContext } from '../../store/AppContext';
 import { t } from '../../i18n/translations';
+import { DEFAULT_ADMIN_SETTINGS, type AdminSettings } from '@shared/types';
 import logo from '../../assets/logo.png';
 
-const navItems = [
-  { to: '/admin', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', labelKey: 'nav_dashboard' as const },
-  { to: '/admin/ragazzi', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z', labelKey: 'nav_ragazzi' as const },
-  { to: '/admin/tasks', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', labelKey: 'nav_tasks' as const },
-  { to: '/admin/commitments', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', labelKey: 'nav_commitments' as const },
-  { to: '/admin/weekly-activities', icon: 'M4 6h16M4 12h16M4 18h16', labelKey: 'nav_weekly_activities' as const },
-  { to: '/admin/stats', icon: 'M3 3v18h18M7 16V8m4 8V4m4 12v-6m4 6v-9', labelKey: 'nav_stats' as const },
-  { to: '/admin/washing-machine', icon: 'M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm2 4h1m4 8a4 4 0 100-8 4 4 0 000 8z', labelKey: 'nav_washing_machine' as const },
-  { to: '/admin/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', labelKey: 'nav_admin_profile' as const },
+type NavItem = {
+  to: string;
+  icon: string;
+  labelKey: Parameters<typeof t>[0];
+  // If set, the item is shown only when this admin-settings flag is true.
+  requires?: keyof AdminSettings;
+};
+
+const navItems: NavItem[] = [
+  { to: '/admin', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', labelKey: 'nav_dashboard' },
+  { to: '/admin/ragazzi', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z', labelKey: 'nav_ragazzi' },
+  { to: '/admin/tasks', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', labelKey: 'nav_tasks', requires: 'useWeeklyTasksCalendar' },
+  { to: '/admin/commitments', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', labelKey: 'nav_commitments', requires: 'useWeeklyCommitmentsCalendar' },
+  { to: '/admin/weekly-activities', icon: 'M4 6h16M4 12h16M4 18h16', labelKey: 'nav_weekly_activities', requires: 'useWeeklyActivitiesCalendar' },
+  { to: '/admin/stats', icon: 'M3 3v18h18M7 16V8m4 8V4m4 12v-6m4 6v-9', labelKey: 'nav_stats', requires: 'useMonthlyTaskStats' },
+  { to: '/admin/washing-machine', icon: 'M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm2 4h1m4 8a4 4 0 100-8 4 4 0 000 8z', labelKey: 'nav_washing_machine', requires: 'useWashingMachine' },
+  { to: '/admin/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', labelKey: 'nav_admin_profile' },
 ];
 
 export default function AdminSidebar() {
   const { logout } = useAuth();
   const { state } = useAppContext();
   const lang = state.language;
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
+  const visibleNavItems = navItems.filter((item) => !item.requires || settings[item.requires]);
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white/55 backdrop-blur-md border-r border-stone-200/70 z-40 flex flex-col">
@@ -35,7 +46,7 @@ export default function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

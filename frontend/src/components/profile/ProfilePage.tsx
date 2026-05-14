@@ -5,7 +5,7 @@ import { apiGet, apiPatch } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_RAGAZZI, MOCK_EMAIL_TEMPLATES } from '../../lib/mockData';
 import { t } from '../../i18n/translations';
-import type { Ragazzo, Language } from '@shared/types';
+import { DEFAULT_ADMIN_SETTINGS, type Ragazzo, type Language } from '@shared/types';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [emailCopied, setEmailCopied] = useState(false);
   const isAdmin = state.currentUser?.role === 'admin';
   const lang = state.language;
+  const adminSettings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
 
   // For ragazzo viewing their own profile
   const ragazzoId = id ?? state.currentUser?.ragazzoId;
@@ -200,6 +201,9 @@ export default function ProfilePage() {
   if (!ragazzo) return <div className="flex items-center justify-center h-64 text-stone-800/50">{t('common_loading', lang)}</div>;
 
   const totalPoints = ragazzo.pointsHistory.reduce((sum, w) => sum + w.points, 0);
+  // Ragazzi can only see score-related UI if their admin allows it AND the
+  // weekly-tasks calendar is on; admins always see it on a ragazzo's profile.
+  const showScores = isAdmin || (adminSettings.ragazziCanSeeTaskScores && adminSettings.useWeeklyTasksCalendar);
 
   return (
     <div className="animate-fade-in pb-24">
@@ -219,7 +223,7 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Celebration — total accumulated points */}
-        {totalPoints > 0 && (
+        {totalPoints > 0 && showScores && (
           <Card className="bg-emerald-300 border-2 border-emerald-500 animate-scale-in flex flex-col justify-center">
             <div className="flex items-center justify-center gap-6 py-4">
               <span className="text-7xl text-yellow-200 drop-shadow-md leading-none">★</span>
@@ -389,20 +393,24 @@ export default function ProfilePage() {
         </div>
 
         {/* Keywords */}
-        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('rag_keywords', lang)}</h2>}>
-          <div className='dashed-divider'/>
-          <KeywordsSection
-            keywords={ragazzo.keywords}
-            editable={editing && isAdmin}
-            onChange={(kw) => setFormData({ ...formData, keywords: kw })}
-          />
-        </Card>
+        {(isAdmin || adminSettings.ragazziCanSeeKeywords) && (
+          <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('rag_keywords', lang)}</h2>}>
+            <div className='dashed-divider'/>
+            <KeywordsSection
+              keywords={ragazzo.keywords}
+              editable={editing && isAdmin}
+              onChange={(kw) => setFormData({ ...formData, keywords: kw })}
+            />
+          </Card>
+        )}
 
         {/* Points Chart */}
-        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('points_weekly', lang)}</h2>}>
-          <div className='dashed-divider'/>
-          <PointsChart pointsHistory={ragazzo.pointsHistory} />
-        </Card>
+        {showScores && (
+          <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('points_weekly', lang)}</h2>}>
+            <div className='dashed-divider'/>
+            <PointsChart pointsHistory={ragazzo.pointsHistory} />
+          </Card>
+        )}
 
         {/* Email button */}
         <div className="flex justify-center items-center lg:col-span-2">
@@ -478,7 +486,7 @@ export default function ProfilePage() {
       </div>
 
       {/* FAB — admin-only: jump to ragazzo's report */}
-      {isAdmin && id && (
+      {isAdmin && id && adminSettings.useMonthlyReports && (
         <button
           type="button"
           onClick={() => navigate(`/admin/ragazzi/${id}/report`)}

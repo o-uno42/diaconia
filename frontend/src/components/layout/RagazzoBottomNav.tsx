@@ -1,19 +1,32 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
 import { t } from '../../i18n/translations';
+import { DEFAULT_ADMIN_SETTINGS, type AdminSettings } from '@shared/types';
 
-const navItems = [
+type NavItem = {
+  to: string;
+  end: boolean;
+  icon: string;
+  labelKey: Parameters<typeof t>[0];
+  // Predicate run against the resolved admin settings. If it returns
+  // false the slot is hidden from the bottom nav.
+  isVisible?: (s: AdminSettings) => boolean;
+};
+
+const navItems: NavItem[] = [
   {
     to: '/ragazzo/tasks',
     end: false,
     icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
-    labelKey: 'nav_tasks' as const,
+    labelKey: 'nav_tasks',
+    isVisible: (s) => s.useWeeklyTasksCalendar,
   },
   {
     to: '/ragazzo/weekly-activities',
     end: false,
     icon: 'M4 6h16M4 12h16M4 18h16',
-    labelKey: 'nav_activities' as const,
+    labelKey: 'nav_activities',
+    isVisible: (s) => s.useWeeklyActivitiesCalendar && s.ragazziCanSeeWeeklyActivities,
   },
   // {
   //   to: '/ragazzo',
@@ -25,7 +38,7 @@ const navItems = [
     to: '/ragazzo/profile',
     end: false,
     icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-    labelKey: 'nav_profile' as const,
+    labelKey: 'nav_profile',
   },
 ];
 
@@ -35,13 +48,15 @@ export default function RagazzoBottomNav() {
   const { state } = useAppContext();
   const lang = state.language;
   const location = useLocation();
+  const settings = state.currentUser?.adminSettings ?? DEFAULT_ADMIN_SETTINGS;
+  const visibleNavItems = navItems.filter((item) => !item.isVisible || item.isVisible(settings));
 
-  const activeIndex = navItems.findIndex((item) =>
+  const activeIndex = visibleNavItems.findIndex((item) =>
     item.end ? location.pathname === item.to : location.pathname.startsWith(item.to),
   );
   const hasActive = activeIndex >= 0;
-  const indicatorLeft = `${((activeIndex + 0.5) / navItems.length) * 100}%`;
-  const activeItem = hasActive ? navItems[activeIndex] : null;
+  const indicatorLeft = `${((activeIndex + 0.5) / visibleNavItems.length) * 100}%`;
+  const activeItem = hasActive ? visibleNavItems[activeIndex] : null;
 
   return (
     <nav
@@ -82,7 +97,7 @@ export default function RagazzoBottomNav() {
 
         {/* Nav slots — all visually identical */}
         <div className="relative h-full flex items-stretch pb-[env(safe-area-inset-bottom)]">
-          {navItems.map((item, i) => {
+          {visibleNavItems.map((item, i) => {
             const isActive = i === activeIndex;
             return (
               <NavLink

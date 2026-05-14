@@ -15,6 +15,7 @@ const ADMIN_SETTING_COLUMNS: Record<keyof AdminSettings, string> = {
   useMonthlyReports: 'use_monthly_reports',
   ragazziCanSeeTaskScores: 'ragazzi_can_see_task_scores',
   ragazziCanSeeWeeklyActivities: 'ragazzi_can_see_weekly_activities',
+  ragazziCanSeeKeywords: 'ragazzi_can_see_keywords',
 };
 
 // POST /api/auth/login — JWT must be in Authorization: Bearer header.
@@ -206,7 +207,7 @@ router.patch('/me/admin-settings', authMiddleware, async (req: Request, res: Res
       .from('profiles')
       .update(updates)
       .eq('id', req.user.id)
-      .select('use_weekly_tasks_calendar, use_weekly_commitments_calendar, use_weekly_activities_calendar, use_monthly_task_stats, use_washing_machine, use_monthly_reports, ragazzi_can_see_task_scores, ragazzi_can_see_weekly_activities')
+      .select('use_weekly_tasks_calendar, use_weekly_commitments_calendar, use_weekly_activities_calendar, use_monthly_task_stats, use_washing_machine, use_monthly_reports, ragazzi_can_see_task_scores, ragazzi_can_see_weekly_activities, ragazzi_can_see_keywords')
       .single();
 
     if (error || !data) {
@@ -224,6 +225,7 @@ router.patch('/me/admin-settings', authMiddleware, async (req: Request, res: Res
       useMonthlyReports: row['use_monthly_reports'] ?? DEFAULT_ADMIN_SETTINGS.useMonthlyReports,
       ragazziCanSeeTaskScores: row['ragazzi_can_see_task_scores'] ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeTaskScores,
       ragazziCanSeeWeeklyActivities: row['ragazzi_can_see_weekly_activities'] ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeWeeklyActivities,
+      ragazziCanSeeKeywords: row['ragazzi_can_see_keywords'] ?? DEFAULT_ADMIN_SETTINGS.ragazziCanSeeKeywords,
     };
 
     res.json({ data: { adminSettings } });

@@ -31,6 +31,7 @@ export interface AdminSettings {
   // Ragazzi-side features (set by the admin, affect their ragazzi)
   ragazziCanSeeTaskScores: boolean;
   ragazziCanSeeWeeklyActivities: boolean;
+  ragazziCanSeeKeywords: boolean;
 }
 
 export const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
@@ -42,6 +43,7 @@ export const DEFAULT_ADMIN_SETTINGS: AdminSettings = {
   useMonthlyReports: true,
   ragazziCanSeeTaskScores: true,
   ragazziCanSeeWeeklyActivities: true,
+  ragazziCanSeeKeywords: true,
 };
 
 // ─── Ragazzo ───────────────────────────────────────────────────────
