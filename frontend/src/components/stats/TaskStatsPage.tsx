@@ -219,7 +219,7 @@ export default function TaskStatsPage() {
           </div>
         </div>
       )}
-      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} />
+      {/* <DownloadPDFFAB weekOffset={weekOffset} lang={lang} /> */}
     </div>
   );
 }
