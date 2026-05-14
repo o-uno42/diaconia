@@ -13,6 +13,8 @@ import TaskCalendarPage from './components/tasks/TaskCalendarPage';
 import RagazzoTaskView from './components/tasks/RagazzoTaskView';
 import ReportPage from './components/report/ReportPage';
 import CommitmentsCalendarPage from './components/commitments/CommitmentsCalendarPage';
+import WeeklyActivitiesPage from './components/weekly/WeeklyActivitiesPage';
+import TaskStatsPage from './components/stats/TaskStatsPage';
 import landingImage from './assets/landing.png';
 
 function GlobalAccessibilityPreferences() {
@@ -41,9 +43,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 function AdminLayout() {
   return (
-    <div className="min-h-screen gradient-ragazzo">
+    <div className="h-screen overflow-hidden gradient-ragazzo">
       <AdminSidebar />
-      <main className="ml-64 p-8 min-h-screen">
+      <main className="ml-64 p-8 h-screen overflow-y-auto">
         <Outlet />
       </main>
     </div>
@@ -100,6 +102,8 @@ function AppRoutes() {
           <Route path="ragazzi/:id/report" element={<ReportPage />} />
           <Route path="tasks" element={<TaskCalendarPage />} />
           <Route path="commitments" element={<CommitmentsCalendarPage />} />
+          <Route path="weekly-activities" element={<WeeklyActivitiesPage />} />
+          <Route path="stats" element={<TaskStatsPage />} />
         </Route>
 
         {/* Ragazzo routes */}

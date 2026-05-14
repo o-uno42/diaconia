@@ -46,14 +46,17 @@ export default function RagazziListPage() {
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="flex items-center gap-4 mb-6">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('common_search', lang)}
-          className="input-field max-w-md"
+          className="input-field flex-1"
         />
+        <Button size="sm" className="animate-pulse-cta self-stretch" variant="secondary" onClick={() => navigate('/admin/ragazzi')}>
+          + {t('rag_add', lang)}
+        </Button>
       </div>
 
       {/* Grid */}
@@ -66,9 +69,10 @@ export default function RagazziListPage() {
             className="animate-slide-up"
           >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl gradient-success flex items-center justify-center text-stone-800 font-bold flex-shrink-0">
+              ★
+              {/* <div className="w-12 h-12 rounded-xl gradient-success flex items-center justify-center text-stone-800 font-bold flex-shrink-0">
                 {r.firstName.charAt(0)}{r.lastName.charAt(0)}
-              </div>
+              </div> */}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-stone-800">{r.firstName} {r.lastName}</h3>
                 <p className="text-sm text-stone-800/40 truncate">{r.email}</p>
@@ -80,12 +84,12 @@ export default function RagazziListPage() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 mt-4 pt-3 border-t border-white/5">
-              <Button variant="ghost" size="sm" className="flex-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}`); }}>
+            <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-white/5">
+              {/* <Button variant="ghost" size="sm" className="flex-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}`); }}>
                 {t('nav_profile', lang)}
-              </Button>
-              <Button variant="ghost" size="sm" className="flex-1" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}/report`); }}>
-                {t('report_title', lang)}
+              </Button> */}
+              <Button size="sm" className="w-auto" onClick={(e) => { e.stopPropagation(); navigate(`/admin/ragazzi/${r.id}/report`); }}>
+                {t('report_open', lang)}
               </Button>
             </div>
           </Card>

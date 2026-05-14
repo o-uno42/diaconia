@@ -1,4 +1,4 @@
-import type { Ragazzo, Task, Notification, ReportEntry, WeeklyPoints, Commitment, EmailTemplate } from '@shared/types';
+import type { Ragazzo, Task, TaskTemplate, Notification, ReportEntry, WeeklyPoints, Commitment, EmailTemplate, WeeklyActivity, WeeklyActivityEntry } from '@shared/types';
 
 // ─── Mock Ragazzi ───────────────────────────────────────────────────
 export const MOCK_RAGAZZI: Ragazzo[] = [
@@ -43,16 +43,27 @@ function genPoints(_id: string): WeeklyPoints[] {
 export function getMockTasks(weekId: string): Task[] {
   return [
     { id: 'task-1', weekId, name: 'Pulizia cucina', points: 1, assignedTo: 'mock-mario-id', completions: [
-      { id: 'tc-1', taskId: 'task-1', ragazzoId: 'mock-mario-id', day: 0, completedAt: new Date().toISOString(), markedByAdmin: true },
+      { id: 'tc-1', taskId: 'task-1', ragazzoId: 'mock-mario-id', day: 0, completedAt: new Date().toISOString(), markedByAdmin: true, adminConfirmed: true },
     ]},
     { id: 'task-2', weekId, name: 'Lavanderia', points: 0.5, assignedTo: 'mock-giulia-id', completions: [
-      { id: 'tc-2', taskId: 'task-2', ragazzoId: 'mock-giulia-id', day: 1, completedAt: new Date().toISOString(), markedByAdmin: false },
+      { id: 'tc-2', taskId: 'task-2', ragazzoId: 'mock-giulia-id', day: 1, completedAt: new Date().toISOString(), markedByAdmin: false, adminConfirmed: false },
     ]},
     { id: 'task-3', weekId, name: 'Spesa settimanale', points: 2, completions: [] },
     { id: 'task-4', weekId, name: 'Giardinaggio', points: 1, completions: [] },
     { id: 'task-5', weekId, name: 'Riordino sala comune', points: 0.5, completions: [] },
   ];
 }
+
+// ─── Mock Task Templates ────────────────────────────────────────────
+export const MOCK_TASK_TEMPLATES: TaskTemplate[] = [
+  { id: 'tt-1', name: 'Pulizia cucina',         points: 1,   createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'tt-2', name: 'Lavanderia',             points: 0.5, createdAt: '2025-01-01T00:00:00.001Z' },
+  { id: 'tt-3', name: 'Spesa settimanale',      points: 2,   createdAt: '2025-01-01T00:00:00.002Z' },
+  { id: 'tt-4', name: 'Giardinaggio',           points: 1,   createdAt: '2025-01-01T00:00:00.003Z' },
+  { id: 'tt-5', name: 'Riordino sala comune',   points: 0.5, createdAt: '2025-01-01T00:00:00.004Z' },
+  { id: 'tt-6', name: 'Pulizia bagno',          points: 1,   createdAt: '2025-01-01T00:00:00.005Z' },
+  { id: 'tt-7', name: 'Cucinare la cena',       points: 2,   createdAt: '2025-01-01T00:00:00.006Z' },
+];
 
 // ─── Mock Reports ───────────────────────────────────────────────────
 export const MOCK_REPORTS: Record<string, ReportEntry[]> = {
@@ -63,6 +74,7 @@ export const MOCK_REPORTS: Record<string, ReportEntry[]> = {
       familyArea: 'Contatto telefonico positivo con la famiglia. La madre ha confermato il progresso.',
       socialRelational: 'Puntualità migliorata nelle attività di gruppo. Buona interazione con i compagni.',
       psychoAffective: 'Stato emotivo stabile. Mostra crescente sicurezza.',
+      cognitiveArea: '',
       individualSession: 'Lavorato su obiettivi di Autonomia personale. Progressi evidenti.',
     }, createdAt: '2025-05-10T10:00:00Z', updatedAt: '2025-05-10T10:00:00Z' },
     { id: 'r2', ragazzoId: 'mock-mario-id', date: '2025-05-08', sections: {
@@ -71,6 +83,7 @@ export const MOCK_REPORTS: Record<string, ReportEntry[]> = {
       familyArea: 'Nessun contatto con la famiglia oggi.',
       socialRelational: 'Interazione positiva con i pari durante il pranzo.',
       psychoAffective: 'Motivato e partecipativo.',
+      cognitiveArea: '',
       individualSession: 'Focus sulla Puntualità negli impegni settimanali.',
     }, createdAt: '2025-05-08T10:00:00Z', updatedAt: '2025-05-08T10:00:00Z' },
   ],
@@ -81,6 +94,7 @@ export const MOCK_REPORTS: Record<string, ReportEntry[]> = {
       familyArea: 'Videochiamata con il padre. Momento sereno.',
       socialRelational: 'Buona Creatività nei progetti di gruppo. Ha guidato il team.',
       psychoAffective: 'Ansia sotto controllo grazie alle strategie acquisite.',
+      cognitiveArea: '',
       individualSession: 'Lavoro sulla gestione dell\'Ansia. La Creatività come strumento terapeutico.',
     }, createdAt: '2025-05-09T10:00:00Z', updatedAt: '2025-05-09T10:00:00Z' },
   ],
@@ -102,6 +116,25 @@ export function getMockCommitments(weekId: string): Commitment[] {
     { id: 'c4', ragazzoId: 'mock-giulia-id', weekId, day: 4, text: 'Laboratorio artigianale' },
     { id: 'c5', ragazzoId: 'mock-ahmed-id', weekId, day: 0, text: 'Corso di italiano' },
     { id: 'c6', ragazzoId: 'mock-ahmed-id', weekId, day: 3, text: 'Mediazione culturale' },
+  ];
+}
+
+// ─── Mock Weekly Activities ─────────────────────────────────────────
+export const MOCK_WEEKLY_ACTIVITIES: WeeklyActivity[] = [
+  { id: 'wa-1', name: 'Pranzo',                       createdAt: '2025-01-01T00:00:00.000Z' },
+  { id: 'wa-2', name: 'Prima attività libera',        createdAt: '2025-01-01T00:00:00.001Z' },
+  { id: 'wa-3', name: 'Prima attività programmata',   createdAt: '2025-01-01T00:00:00.002Z' },
+  { id: 'wa-4', name: 'Studio',                       createdAt: '2025-01-01T00:00:00.003Z' },
+  { id: 'wa-5', name: 'Merenda',                      createdAt: '2025-01-01T00:00:00.004Z' },
+  { id: 'wa-6', name: 'Seconda attività programmata', createdAt: '2025-01-01T00:00:00.005Z' },
+  { id: 'wa-7', name: 'Seconda attività libera',      createdAt: '2025-01-01T00:00:00.006Z' },
+];
+
+export function getMockWeeklyActivityEntries(weekId: string): WeeklyActivityEntry[] {
+  return [
+    { id: 'wae-1', activityId: 'wa-1', weekId, day: 3, text: 'Pranzo in famiglia' },
+    { id: 'wae-2', activityId: 'wa-4', weekId, day: 1, text: 'Compiti di matematica' },
+    { id: 'wae-3', activityId: 'wa-3', weekId, day: 2, text: 'Laboratorio musicale' },
   ];
 }
 

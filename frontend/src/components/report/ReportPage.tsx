@@ -11,24 +11,35 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import Highlight from '../ui/Highlight';
 
-const SECTION_KEYS: { key: keyof ReportSections; labelKey: keyof TranslationKeys; titleColor: string }[] = [
+type SectionDef = { key: keyof ReportSections; labelKey: keyof TranslationKeys; titleColor: string };
+
+// Left grid (3x2): 6 thematic areas
+const LEFT_SECTION_KEYS: SectionDef[] = [
   { key: 'dailyArea', labelKey: 'report_daily_area', titleColor: 'text-indigo-700' },
   { key: 'health', labelKey: 'report_health', titleColor: 'text-emerald-700' },
   { key: 'familyArea', labelKey: 'report_family_area', titleColor: 'text-rose-700' },
   { key: 'socialRelational', labelKey: 'report_social_relational', titleColor: 'text-sky-700' },
   { key: 'psychoAffective', labelKey: 'report_psycho_affective', titleColor: 'text-violet-700' },
+  { key: 'cognitiveArea', labelKey: 'report_cognitive_area', titleColor: 'text-teal-700' },
+];
+
+// Right column (narrower): single area shown full-height beside the grid
+const RIGHT_SECTION_KEYS: SectionDef[] = [
   { key: 'individualSession', labelKey: 'report_individual_session', titleColor: 'text-amber-700' },
 ];
 
+const SECTION_KEYS: SectionDef[] = [...LEFT_SECTION_KEYS, ...RIGHT_SECTION_KEYS];
+
 const EMPTY_SECTIONS: ReportSections = {
-  dailyArea: '', health: '', familyArea: '', socialRelational: '', psychoAffective: '', individualSession: '',
+  dailyArea: '', health: '', familyArea: '', socialRelational: '', psychoAffective: '',
+  cognitiveArea: '', individualSession: '',
 };
 
 export default function ReportPage() {
   const { id } = useParams<{ id: string }>();
   const { state } = useAppContext();
   const [entries, setEntries] = useState<ReportEntry[]>([]);
-  const [editEntry, setEditEntry] = useState<ReportEntry | null>(null);
+  const [editMode, setEditMode] = useState(false);
   // Per-area add flow: which area is being added to (null = closed)
   const [addArea, setAddArea] = useState<keyof ReportSections | null>(null);
   const [addDate, setAddDate] = useState(new Date().toISOString().slice(0, 10));
@@ -72,7 +83,15 @@ export default function ReportPage() {
   const openAddArea = (area: keyof ReportSections) => {
     setAddDate(new Date().toISOString().slice(0, 10));
     setAddText('');
+    setEditMode(false);
     setAddArea(area);
+  };
+
+  const openEditArea = (area: keyof ReportSections, entry: ReportEntry) => {
+    setAddDate(entry.date);
+    setEditMode(true);
+    setAddArea(area);
+    // useEffect will fill addText from entry.sections[area]
   };
 
   const handleSaveAddArea = async () => {
@@ -106,15 +125,7 @@ export default function ReportPage() {
   const closeAddModal = () => {
     stopListening();
     setAddArea(null);
-  };
-
-  const handleUpdate = async () => {
-    if (!editEntry || !id) return;
-    if (!isMockMode) {
-      await apiPatch(`/api/ragazzi/${id}/report/${editEntry.id}`, { sections: editEntry.sections });
-    }
-    setEntries(entries.map((e) => (e.id === editEntry.id ? editEntry : e)));
-    setEditEntry(null);
+    setEditMode(false);
   };
 
   const handleDeleteEntry = async (entryId: string) => {
@@ -127,75 +138,83 @@ export default function ReportPage() {
     ? t(SECTION_KEYS.find((s) => s.key === addArea)!.labelKey, lang)
     : '';
 
+  const renderAreaCard = ({ key, labelKey, titleColor }: SectionDef, heightClass: string) => {
+    const areaEntries = entries
+      .filter((e) => e.sections[key]?.trim())
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    return (
+      <div key={key} className={`glass-card flex flex-col overflow-hidden ${heightClass}`}>
+        {/* Header — area title + add button */}
+        <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+          <h2 className={`text-sm font-semibold uppercase tracking-wider ${titleColor}`}>
+            {t(labelKey, lang)}
+          </h2>
+          <button
+            type="button"
+            onClick={() => openAddArea(key)}
+            aria-label={`${t('report_add', lang)} — ${t(labelKey, lang)}`}
+            className="animate-pulse-cta w-9 h-9 rounded-full bg-indigo-600 text-white text-xl font-bold flex items-center justify-center shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Scrollable list of dated entries for this area */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
+          {areaEntries.length === 0 ? (
+            <p className="text-sm text-stone-800/40 text-center pt-4">{t('report_empty', lang)}</p>
+          ) : (
+            <div className="space-y-3">
+              {areaEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  onClick={() => openEditArea(key, entry)}
+                  className="cursor-pointer rounded-lg p-2 -mx-2 hover:bg-white/40 transition-colors"
+                >
+                  <div className="text-xs font-semibold text-stone-800/60 mb-1">
+                    {new Date(entry.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </div>
+                  <Highlight
+                    text={entry.sections[key]}
+                    keywords={keywords}
+                    className="text-sm text-stone-800/90 leading-relaxed"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-stone-800">{t('report_title', lang)} {t('report_of', lang)} {ragazzo?.firstName} {ragazzo?.lastName}</h1>
         </div>
+        <Button>Scarica il report</Button>
       </div>
 
-      {/* 6 area notebooks — fixed-height cards with internal vertical scroll.
-          The data model is unchanged: a single ReportEntry still holds all
-          6 sections for a date; we just upsert the right field on save. */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {SECTION_KEYS.map(({ key, labelKey, titleColor }) => {
-          const areaEntries = entries
-            .filter((e) => e.sections[key]?.trim())
-            .sort((a, b) => b.date.localeCompare(a.date));
-
-          return (
-            <div key={key} className="glass-card flex flex-col overflow-hidden h-[380px] lg:h-[calc((100vh-10rem)/2)]">
-              {/* Header — area title + add button */}
-              <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
-                <h2 className={`text-sm font-semibold uppercase tracking-wider ${titleColor}`}>
-                  {t(labelKey, lang)}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => openAddArea(key)}
-                  aria-label={`${t('report_add', lang)} — ${t(labelKey, lang)}`}
-                  className="animate-pulse-cta w-9 h-9 rounded-full bg-indigo-600 text-white text-xl font-bold flex items-center justify-center shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Scrollable list of dated entries for this area */}
-              <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
-                {areaEntries.length === 0 ? (
-                  <p className="text-sm text-stone-800/40 text-center pt-4">{t('report_empty', lang)}</p>
-                ) : (
-                  <div className="space-y-3">
-                    {areaEntries.map((entry) => (
-                      <div
-                        key={entry.id}
-                        onClick={() => setEditEntry(entry)}
-                        className="cursor-pointer rounded-lg p-2 -mx-2 hover:bg-white/40 transition-colors"
-                      >
-                        <div className="text-xs font-semibold text-stone-800/60 mb-1">
-                          {new Date(entry.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </div>
-                        <Highlight
-                          text={entry.sections[key]}
-                          keywords={keywords}
-                          className="text-sm text-stone-800/90 leading-relaxed"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+      {/* Layout: 3x2 grid on the left for the 6 thematic areas, then a
+          narrower right column with the "Colloquio individuale" card spanning
+          the full height (so it visually matches two stacked left cards). */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="lg:flex-[3] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {LEFT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-[calc((100vh-10rem)/2)]'))}
+        </div>
+        <div className="lg:flex-1 flex flex-col">
+          {RIGHT_SECTION_KEYS.map((section) => renderAreaCard(section, 'h-[380px] lg:h-[calc(100vh-9rem)]'))}
+        </div>
       </div>
 
       {/* Add-to-area Modal — scoped to a single thematic area */}
       <Modal
         isOpen={!!addArea}
         onClose={closeAddModal}
-        title={`${t('report_add', lang)} — ${currentAreaLabel}`}
+        title={editMode ? t('report_edit', lang) : `${t('report_add', lang)} — ${currentAreaLabel}`}
         size="md"
       >
         <div className="space-y-4">
@@ -274,42 +293,8 @@ export default function ReportPage() {
         </div>
       </Modal>
 
-      {/* Edit Modal — opens by clicking any dated line. Edits all 6 areas
-          for that date, includes Delete for the whole daily entry. */}
-      <Modal isOpen={!!editEntry} onClose={() => setEditEntry(null)} title={`${t('rag_edit', lang)} — ${editEntry?.date ?? ''}`} size="xl">
-        {editEntry && (
-          <div className="space-y-4">
-            {SECTION_KEYS.map(({ key, labelKey }) => (
-              <div key={key}>
-                <label className="block text-sm text-stone-800/60 mb-1">{t(labelKey, lang)}</label>
-                <textarea
-                  value={editEntry.sections[key]}
-                  onChange={(e) => setEditEntry({ ...editEntry, sections: { ...editEntry.sections, [key]: e.target.value } })}
-                  className="input-field min-h-[80px] resize-y"
-                  rows={3}
-                />
-              </div>
-            ))}
-            <div className="flex gap-3 justify-between items-center">
-              <Button
-                variant="danger"
-                onClick={() => {
-                  if (editEntry && window.confirm(t('photo_confirm_delete', lang))) {
-                    handleDeleteEntry(editEntry.id);
-                    setEditEntry(null);
-                  }
-                }}
-              >
-                {t('rag_delete', lang)}
-              </Button>
-              <div className="flex gap-3">
-                <Button variant="ghost" onClick={() => setEditEntry(null)}>{t('common_cancel', lang)}</Button>
-                <Button onClick={handleUpdate}>{t('report_save', lang)}</Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* Edit modal replaced: clicking a dated entry now opens the add modal
+          in editMode (same UI + mic), so no separate edit modal needed. */}
     </div>
   );
 }

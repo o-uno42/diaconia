@@ -5,12 +5,13 @@ import { getWeeklyPoints, getTopTask } from '../services/pointsService';
 
 const router = Router();
 
-// GET /api/ragazzi — list all (admin only)
-router.get('/', requireAdmin, async (_req: Request, res: Response): Promise<void> => {
+// GET /api/ragazzi — list ragazzi owned by the current admin
+router.get('/', requireAdmin, async (req: Request, res: Response): Promise<void> => {
   try {
     const { data, error } = await supabase
       .from('ragazzi')
       .select('*')
+      .eq('owner_admin_id', req.user.id)
       .order('last_name');
 
     if (error) {
@@ -74,11 +75,12 @@ router.post('/', requireAdmin, async (req: Request, res: Response): Promise<void
 
     const userId = authData.user.id;
 
-    // Create ragazzo record
+    // Create ragazzo record — owned by the admin issuing the request
     const { data: ragazzo, error: ragazzoError } = await supabase
       .from('ragazzi')
       .insert({
         user_id: userId,
+        owner_admin_id: req.user.id,
         first_name: firstName,
         last_name: lastName,
         birth_date: birthDate ?? null,
@@ -124,7 +126,7 @@ router.post('/', requireAdmin, async (req: Request, res: Response): Promise<void
   }
 });
 
-// GET /api/ragazzi/:id — get single ragazzo (admin or own)
+// GET /api/ragazzi/:id — get single ragazzo (own admin's, or the ragazzo themselves)
 router.get('/:id', requireAdminOrOwn, async (req: Request, res: Response): Promise<void> => {
   try {
     const { data, error } = await supabase
@@ -134,6 +136,12 @@ router.get('/:id', requireAdminOrOwn, async (req: Request, res: Response): Promi
       .single();
 
     if (error || !data) {
+      res.status(404).json({ error: 'Ragazzo not found' });
+      return;
+    }
+
+    // An admin can only access their own ragazzi
+    if (req.user.role === 'admin' && data.owner_admin_id !== req.user.id) {
       res.status(404).json({ error: 'Ragazzo not found' });
       return;
     }
@@ -206,15 +214,20 @@ router.patch('/:id', requireAdminOrOwn, async (req: Request, res: Response): Pro
   }
 
   try {
-    const { data, error } = await supabase
+    // Build update query — admins can only update their own ragazzi
+    let query = supabase
       .from('ragazzi')
       .update(updateData)
-      .eq('id', req.params['id'])
-      .select()
-      .single();
+      .eq('id', req.params['id']);
+
+    if (req.user.role === 'admin') {
+      query = query.eq('owner_admin_id', req.user.id);
+    }
+
+    const { data, error } = await query.select().single();
 
     if (error || !data) {
-      res.status(500).json({ error: error?.message ?? 'Update failed' });
+      res.status(404).json({ error: error?.message ?? 'Ragazzo not found' });
       return;
     }
 

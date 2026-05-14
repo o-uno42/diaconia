@@ -73,6 +73,14 @@ export interface TaskCompletion {
   day: number; // 0 = Monday … 6 = Sunday
   completedAt: string;
   markedByAdmin: boolean;
+  adminConfirmed: boolean;
+}
+
+export interface TaskTemplate {
+  id: string;
+  name: string;
+  points: PointValue;
+  createdAt: string;
 }
 
 // ─── Reports ───────────────────────────────────────────────────────
@@ -92,6 +100,7 @@ export interface ReportSections {
   familyArea: string;
   socialRelational: string;
   psychoAffective: string;
+  cognitiveArea: string;
   individualSession: string;
 }
 
@@ -100,6 +109,22 @@ export interface ReportSections {
 export interface Commitment {
   id: string;
   ragazzoId: string;
+  weekId: string;
+  day: number;
+  text: string;
+}
+
+// ─── Weekly Activities ─────────────────────────────────────────────
+
+export interface WeeklyActivity {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface WeeklyActivityEntry {
+  id: string;
+  activityId: string;
   weekId: string;
   day: number;
   text: string;
@@ -139,6 +164,7 @@ export const REPORT_SECTION_KEYS: (keyof ReportSections)[] = [
   'familyArea',
   'socialRelational',
   'psychoAffective',
+  'cognitiveArea',
   'individualSession',
 ];
 

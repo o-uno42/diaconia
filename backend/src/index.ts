@@ -5,11 +5,13 @@ import { authMiddleware } from './middleware/auth';
 import authRoutes from './routes/auth';
 import ragazziRoutes from './routes/ragazzi';
 import tasksRoutes from './routes/tasks';
+import taskTemplatesRoutes from './routes/taskTemplates';
 import reportsRoutes from './routes/reports';
 import photosRoutes from './routes/photos';
 import commitmentsRoutes from './routes/commitments';
 import notificationsRoutes from './routes/notifications';
 import transcribeRoutes from './routes/transcribe';
+import weeklyActivitiesRoutes from './routes/weeklyActivities';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -30,8 +32,10 @@ app.use('/api/auth', authRoutes);
 // Protected routes
 app.use('/api/ragazzi', authMiddleware, ragazziRoutes);
 app.use('/api/tasks', authMiddleware, tasksRoutes);
+app.use('/api/task-templates', authMiddleware, taskTemplatesRoutes);
 app.use('/api/commitments', authMiddleware, commitmentsRoutes);
 app.use('/api/notifications', authMiddleware, notificationsRoutes);
+app.use('/api/weekly-activities', authMiddleware, weeklyActivitiesRoutes);
 
 // Nested routes under ragazzi
 app.use('/api/ragazzi', authMiddleware, reportsRoutes);

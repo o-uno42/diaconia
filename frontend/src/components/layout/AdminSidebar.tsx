@@ -9,6 +9,8 @@ const navItems = [
   { to: '/admin/ragazzi', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z', labelKey: 'nav_ragazzi' as const },
   { to: '/admin/tasks', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', labelKey: 'nav_tasks' as const },
   { to: '/admin/commitments', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', labelKey: 'nav_commitments' as const },
+  { to: '/admin/weekly-activities', icon: 'M4 6h16M4 12h16M4 18h16', labelKey: 'nav_weekly_activities' as const },
+  { to: '/admin/stats', icon: 'M3 3v18h18M7 16V8m4 8V4m4 12v-6m4 6v-9', labelKey: 'nav_stats' as const },
 ];
 
 export default function AdminSidebar() {

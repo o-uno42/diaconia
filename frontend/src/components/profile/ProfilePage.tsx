@@ -28,6 +28,9 @@ export default function ProfilePage() {
   const [personalOpen, setPersonalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailWarningOpen, setEmailWarningOpen] = useState(false);
+  const [emailPayload, setEmailPayload] = useState<{ subject: string; body: string } | null>(null);
+  const [emailCopied, setEmailCopied] = useState(false);
   const isAdmin = state.currentUser?.role === 'admin';
   const lang = state.language;
 
@@ -146,10 +149,52 @@ export default function ProfilePage() {
   };
 
   function handleEmailTemplateSelect(template: typeof MOCK_EMAIL_TEMPLATES[0]) {
-    const subject = encodeURIComponent(fillTemplate(template.subject));
-    const body = encodeURIComponent(fillTemplate(template.body));
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    const subjectPlain = fillTemplate(template.subject);
+    const bodyPlain = fillTemplate(template.body);
+    const subject = encodeURIComponent(subjectPlain);
+    const body = encodeURIComponent(bodyPlain);
+    // Attempt the native mailto: handoff. Desktop browsers without a registered
+    // mailto handler silently cancel this — that's why we also surface the
+    // warning modal below with copy/Gmail fallbacks.
+    const a = document.createElement('a');
+    a.href = `mailto:?subject=${subject}&body=${body}`;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setEmailPayload({ subject: subjectPlain, body: bodyPlain });
+    setEmailCopied(false);
     setEmailModalOpen(false);
+    setEmailWarningOpen(true);
+  }
+
+  async function handleCopyEmailPayload() {
+    if (!emailPayload) return;
+    const text = `Oggetto: ${emailPayload.subject}\n\n${emailPayload.body}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 2000);
+    } catch {
+      // Older browsers / non-secure contexts: fall back to a textarea + execCommand
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); setEmailCopied(true); setTimeout(() => setEmailCopied(false), 2000); }
+      catch { /* ignore */ }
+      ta.remove();
+    }
+  }
+
+  function handleOpenGmail() {
+    if (!emailPayload) return;
+    const su = encodeURIComponent(emailPayload.subject);
+    const body = encodeURIComponent(emailPayload.body);
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   if (!ragazzo) return <div className="flex items-center justify-center h-64 text-stone-800/50">{t('common_loading', lang)}</div>;
@@ -172,10 +217,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Celebration — total accumulated points */}
         {totalPoints > 0 && (
-          <Card className="lg:col-span-3 bg-emerald-300 border-2 border-emerald-500 animate-scale-in">
+          <Card className="bg-emerald-300 border-2 border-emerald-500 animate-scale-in flex flex-col justify-center">
             <div className="flex items-center justify-center gap-6 py-4">
               <span className="text-7xl text-yellow-200 drop-shadow-md leading-none">★</span>
               <div className="text-center">
@@ -188,33 +233,17 @@ export default function ProfilePage() {
           </Card>
         )}
 
-        {/* Top task — most-executed task */}
-        {ragazzo.topTask && (
-          <Card className="lg:col-span-3 bg-amber-100 border-2 border-amber-500 animate-scale-in">
-            <div className="flex items-center justify-center gap-4 py-2">
-              <span className="text-2xl drop-shadow-md leading-none">🏆</span>
-              <div className="text-center space-y-1.5">
-                <p className="text-stone-700 text-[12px] tracking-wide font-medium">{t('top_task_title', lang)}</p>
-                <p className="text-base font-bold text-amber-700 uppercase leading-tight">{ragazzo.topTask.name}</p>
-                <p className="text-stone-700 text-xs">
-                  {t('top_task_count_pre', lang)} <span className="font-bold">{ragazzo.topTask.count}</span> {t('top_task_count_post', lang)}
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
-
         {/* Personal Info — collapsible (closed by default) */}
-        <div className="glass-card overflow-hidden lg:col-span-2 transition-all duration-300">
+        <div className="glass-card overflow-hidden transition-all duration-300">
           <button
             type="button"
             onClick={() => setPersonalOpen((o) => !o)}
             aria-expanded={personalOpen}
-            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors text-left"
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 lg:hover:bg-transparent lg:pointer-events-none transition-colors text-left"
           >
             <h2 className="text-lg font-semibold text-stone-800">{t('profile_personal_info', lang)}</h2>
             <svg
-              className={`w-8 h-8 text-stone-800 transition-transform duration-300 ${personalOpen ? 'rotate-180' : ''}`}
+              className={`w-8 h-8 text-stone-800 transition-transform duration-300 lg:hidden ${personalOpen ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -225,7 +254,7 @@ export default function ProfilePage() {
           </button>
 
           <div
-            className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+            className={`grid transition-[grid-template-rows] duration-300 ease-out lg:grid-rows-[1fr] ${
               personalOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
             }`}
           >
@@ -261,17 +290,33 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Top task — most-executed task */}
+        {ragazzo.topTask && (
+          <Card className="bg-amber-100 border-2 border-amber-500 animate-scale-in flex flex-col justify-center">
+            <div className="flex items-center justify-center gap-4 py-2">
+              <span className="text-2xl drop-shadow-md leading-none">🏆</span>
+              <div className="text-center space-y-1.5">
+                <p className="text-stone-700 text-[12px] tracking-wide font-medium">{t('top_task_title', lang)}</p>
+                <p className="text-base font-bold text-amber-700 uppercase leading-tight">{ragazzo.topTask.name}</p>
+                <p className="text-stone-700 text-xs">
+                  {t('top_task_count_pre', lang)} <span className="font-bold">{ragazzo.topTask.count}</span> {t('top_task_count_post', lang)}
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Settings — language + text size (collapsible, closed by default) */}
         <div className="glass-card overflow-hidden transition-all duration-300">
           <button
             type="button"
             onClick={() => setSettingsOpen((o) => !o)}
             aria-expanded={settingsOpen}
-            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors text-left"
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 lg:hover:bg-transparent lg:pointer-events-none transition-colors text-left"
           >
             <h2 className="text-lg font-semibold text-stone-800">{t('profile_settings', lang)}</h2>
             <svg
-              className={`w-8 h-8 text-stone-800 transition-transform duration-300 ${settingsOpen ? 'rotate-180' : ''}`}
+              className={`w-8 h-8 text-stone-800 transition-transform duration-300 lg:hidden ${settingsOpen ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -282,7 +327,7 @@ export default function ProfilePage() {
           </button>
 
           <div
-            className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+            className={`grid transition-[grid-template-rows] duration-300 ease-out lg:grid-rows-[1fr] ${
               settingsOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
             }`}
           >
@@ -354,13 +399,13 @@ export default function ProfilePage() {
         </Card>
 
         {/* Points Chart */}
-        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('points_weekly', lang)}</h2>} className="lg:col-span-2">
+        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('points_weekly', lang)}</h2>}>
           <div className='dashed-divider'/>
           <PointsChart pointsHistory={ragazzo.pointsHistory} />
         </Card>
 
         {/* Email button */}
-        <div className="flex justify-center items-center lg:col-span-3">
+        <div className="flex justify-center items-center lg:col-span-2">
           <button
             type="button"
             // className="animate-pulse-cta hover:animate-none"
@@ -385,8 +430,49 @@ export default function ProfilePage() {
           </div>
         </Modal>
 
+        {/* Fallback warning + copy/Gmail when no mailto handler is registered */}
+        <Modal
+          isOpen={emailWarningOpen}
+          onClose={() => setEmailWarningOpen(false)}
+          title={t('email_warning_title', lang)}
+        >
+          <div className="space-y-4">
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-stone-800 leading-relaxed">
+              <p className="font-semibold text-amber-800 mb-1">{t('email_warning_heading', lang)}</p>
+              <p>{t('email_warning_body', lang)}</p>
+              <ul className="list-disc ml-5 mt-2 space-y-1 text-stone-700">
+                <li>{t('email_warning_windows', lang)}</li>
+                <li>{t('email_warning_macos', lang)}</li>
+              </ul>
+              <p className="mt-2">{t('email_warning_alt', lang)}</p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="secondary"
+                onClick={handleCopyEmailPayload}
+                className="w-full justify-center"
+              >
+                {emailCopied ? t('email_copy_done', lang) : t('email_copy', lang)}
+              </Button>
+              <Button
+                onClick={handleOpenGmail}
+                className="w-full justify-center"
+              >
+                {t('email_open_gmail', lang)}
+              </Button>
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setEmailWarningOpen(false)}>
+                {t('common_close', lang)}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
         {/* Photos */}
-        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('photo_title', lang)}</h2>} className="lg:col-span-3">
+        <Card header={<h2 className="text-lg font-semibold text-stone-800">{t('photo_title', lang)}</h2>} className="lg:col-span-2">
           <PhotosSection ragazzoId={ragazzo.id} photos={ragazzo.photos} isAdmin={isAdmin} />
         </Card>
       </div>

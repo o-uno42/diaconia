@@ -25,7 +25,15 @@ async function seed() {
   });
   if (!adminAuth?.user) { console.error('Failed to create admin'); return; }
   await supabase.from('profiles').insert({ id: adminAuth.user.id, role: 'admin' });
+  const adminId = adminAuth.user.id;
   console.log('✅ Admin created');
+
+  // Backfill rows inserted by migrations (weekly_activities catalog, etc.) that
+  // were created before any admin existed — assign them to the demo admin so
+  // owner_admin_id is no longer null.
+  await supabase.from('weekly_activities').update({ owner_admin_id: adminId }).is('owner_admin_id', null);
+  await supabase.from('task_templates').update({ owner_admin_id: adminId }).is('owner_admin_id', null);
+  await supabase.from('email_templates').update({ owner_admin_id: adminId }).is('owner_admin_id', null);
 
   // 2. Ragazzi
   const ragazziData = [
@@ -44,7 +52,8 @@ async function seed() {
     if (!authData?.user) { console.error(`Failed to create ${r.email}`); continue; }
 
     const { data: ragazzo } = await supabase.from('ragazzi').insert({
-      user_id: authData.user.id, first_name: r.firstName, last_name: r.lastName,
+      user_id: authData.user.id, owner_admin_id: adminId,
+      first_name: r.firstName, last_name: r.lastName,
       birth_date: r.birthDate, phone: r.phone, email: r.email, tax_code: r.taxCode,
       language: r.language, keywords: r.keywords,
     }).select().single();
@@ -68,7 +77,10 @@ async function seed() {
   ];
 
   for (const t of currentWeekTasks) {
-    await supabase.from('tasks').insert({ week_id: currentWeekId, name: t.name, points: t.points, assigned_to: t.assigned_to });
+    await supabase.from('tasks').insert({
+      week_id: currentWeekId, owner_admin_id: adminId,
+      name: t.name, points: t.points, assigned_to: t.assigned_to,
+    });
   }
   console.log('✅ Current week tasks created');
 
@@ -81,7 +93,8 @@ async function seed() {
       const assignedIdx = Math.floor(Math.random() * 3);
 
       const { data: task } = await supabase.from('tasks').insert({
-        week_id: weekId, name: taskName, points, assigned_to: ragazzoIds[assignedIdx],
+        week_id: weekId, owner_admin_id: adminId,
+        name: taskName, points, assigned_to: ragazzoIds[assignedIdx],
       }).select().single();
 
       if (task) {
@@ -108,9 +121,9 @@ async function seed() {
 
   // 5. Report entries
   const marioReports = [
-    { date: '2025-05-10', daily_area: 'Mario ha dimostrato grande Autonomia nella gestione dei compiti.', health: 'Buone condizioni generali.', family_area: 'Contatto telefonico positivo con la famiglia.', social_relational: 'Puntualità migliorata nelle attività di gruppo.', psycho_affective: 'Stato emotivo stabile.', individual_session: 'Lavorato su obiettivi di Autonomia personale.' },
-    { date: '2025-05-08', daily_area: 'Giornata produttiva. Buona Puntualità.', health: 'Leggero raffreddore.', family_area: 'Nessun contatto.', social_relational: 'Interazione positiva con i pari.', psycho_affective: 'Motivato.', individual_session: 'Focus sulla Puntualità negli impegni.' },
-    { date: '2025-05-05', daily_area: 'Impegno nell\'Autonomia quotidiana.', health: 'Ok.', family_area: 'Visita della madre.', social_relational: 'Partecipazione attiva.', psycho_affective: 'Sereno.', individual_session: 'Progresso sull\'Autonomia.' },
+    { date: '2025-05-10', daily_area: 'Mario ha dimostrato grande Autonomia nella gestione dei compiti.', health: 'Buone condizioni generali.', family_area: 'Contatto telefonico positivo con la famiglia.', social_relational: 'Puntualità migliorata nelle attività di gruppo.', psycho_affective: 'Stato emotivo stabile.', cognitive_area: '', individual_session: 'Lavorato su obiettivi di Autonomia personale.' },
+    { date: '2025-05-08', daily_area: 'Giornata produttiva. Buona Puntualità.', health: 'Leggero raffreddore.', family_area: 'Nessun contatto.', social_relational: 'Interazione positiva con i pari.', psycho_affective: 'Motivato.', cognitive_area: '', individual_session: 'Focus sulla Puntualità negli impegni.' },
+    { date: '2025-05-05', daily_area: 'Impegno nell\'Autonomia quotidiana.', health: 'Ok.', family_area: 'Visita della madre.', social_relational: 'Partecipazione attiva.', psycho_affective: 'Sereno.', cognitive_area: '', individual_session: 'Progresso sull\'Autonomia.' },
   ];
 
   for (const r of marioReports) {
@@ -118,8 +131,8 @@ async function seed() {
   }
 
   const giuliaReports = [
-    { date: '2025-05-09', daily_area: 'Giulia ha mostrato Creatività nel laboratorio artistico.', health: 'Episodio di Ansia gestito con tecniche di respirazione.', family_area: 'Videochiamata con il padre.', social_relational: 'Buona Creatività nei progetti di gruppo.', psycho_affective: 'Ansia sotto controllo.', individual_session: 'Lavoro sulla gestione dell\'Ansia.' },
-    { date: '2025-05-07', daily_area: 'Partecipazione alla Creatività musicale.', health: 'Ok.', family_area: 'Lettera alla sorella.', social_relational: 'Collaborativa.', psycho_affective: 'Leggera Ansia pre-attività.', individual_session: 'Creatività come strumento terapeutico.' },
+    { date: '2025-05-09', daily_area: 'Giulia ha mostrato Creatività nel laboratorio artistico.', health: 'Episodio di Ansia gestito con tecniche di respirazione.', family_area: 'Videochiamata con il padre.', social_relational: 'Buona Creatività nei progetti di gruppo.', psycho_affective: 'Ansia sotto controllo.', cognitive_area: '', individual_session: 'Lavoro sulla gestione dell\'Ansia.' },
+    { date: '2025-05-07', daily_area: 'Partecipazione alla Creatività musicale.', health: 'Ok.', family_area: 'Lettera alla sorella.', social_relational: 'Collaborativa.', psycho_affective: 'Leggera Ansia pre-attività.', cognitive_area: '', individual_session: 'Creatività come strumento terapeutico.' },
   ];
 
   for (const r of giuliaReports) {

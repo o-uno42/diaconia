@@ -7,7 +7,15 @@ type TranslationKeys = {
   role_admin: string; role_ragazzo: string;
   // Nav
   nav_dashboard: string; nav_ragazzi: string; nav_tasks: string; nav_commitments: string;
+  nav_weekly_activities: string; nav_stats: string;
   nav_profile: string; nav_home: string; nav_logout: string; nav_notifications: string;
+  // Stats
+  stats_title: string;
+  stats_legend: string;
+  stats_never_done: string;
+  stats_prev_month: string;
+  stats_next_month: string;
+  stats_current_month: string;
   // Auth
   auth_login: string; auth_email: string; auth_password: string; auth_login_btn: string;
   auth_logging_in: string; auth_error: string;
@@ -20,7 +28,7 @@ type TranslationKeys = {
   dash_title: string; dash_active_ragazzi: string; dash_weekly_tasks: string;
   dash_completions: string; dash_pending: string;
   dash_welcome: string; dash_quick_actions: string;
-  dash_section_ragazzi: string; dash_section_weekly: string;
+  dash_section_ragazzi: string; dash_section_weekly: string; dash_general_tasks: string;
   report_open: string;
   // Ragazzi
   rag_title: string; rag_add: string; rag_first_name: string; rag_last_name: string;
@@ -33,6 +41,15 @@ type TranslationKeys = {
   task_completed: string; task_week: string; task_prev_week: string; task_next_week: string;
   task_today: string; task_my_tasks: string; task_none_assigned: string;
   task_available: string; task_none_available: string;
+  task_manage: string; task_manage_title: string; task_empty: string; task_confirm_delete: string;
+  // Task templates
+  task_templates_title: string; task_template_drop_here: string;
+  task_template_drop_hint: string; task_templates_empty: string;
+  task_template_add: string; task_template_confirm_delete: string;
+  task_template_already_in_week: string;
+  // Task completion confirmation
+  task_completion_confirm_title: string; task_completion_confirm_yes: string;
+  task_completion_confirm_no: string; task_completion_pending_tooltip: string;
   // Days
   day_mon: string; day_tue: string; day_wed: string; day_thu: string;
   day_fri: string; day_sat: string; day_sun: string;
@@ -40,7 +57,9 @@ type TranslationKeys = {
   report_title: string; report_of: string; report_add: string; report_date: string;
   report_daily_area: string; report_health: string; report_family_area: string;
   report_social_relational: string; report_psycho_affective: string;
+  report_cognitive_area: string;
   report_individual_session: string; report_save: string; report_voice: string;
+  report_edit: string;
   report_empty: string;
   // Photos
   photo_title: string; photo_upload: string; photo_delete: string; photo_confirm_delete: string;
@@ -50,7 +69,11 @@ type TranslationKeys = {
   points_card_pre: string; points_card_post: string;
   top_task_title: string; top_task_count_pre: string; top_task_count_post: string;
   // Commitments
-  commit_title: string; commit_add: string; commit_text: string; commit_day: string;
+  commit_title: string; commit_add: string; commit_text: string; commit_day: string; commit_edit: string;
+  // Weekly activities
+  weekly_activities: string;
+  wa_manage: string; wa_manage_title: string; wa_add: string; wa_name: string;
+  wa_empty: string; wa_confirm_delete: string; wa_download_pdf: string;
   // Notifications
   notif_title: string; notif_mark_all: string; notif_empty: string;
   // Profile
@@ -69,6 +92,15 @@ type TranslationKeys = {
   common_confirm: string; common_close: string; common_search: string; common_no_data: string;
   // Email
   email_precompiled_button: string;
+  email_warning_title: string;
+  email_warning_heading: string;
+  email_warning_body: string;
+  email_warning_windows: string;
+  email_warning_macos: string;
+  email_warning_alt: string;
+  email_copy: string;
+  email_copy_done: string;
+  email_open_gmail: string;
 };
 
 // Italian is the source of truth — must be complete.
@@ -82,6 +114,13 @@ const translations: TranslationsMap = {
     brand_subtitle: 'Gestire la quotidianità', brand_tagline: 'Vivere la quotidianità, insieme',
     role_admin: 'Admin', role_ragazzo: 'Ragazzo',
     nav_dashboard: 'Panoramica', nav_ragazzi: 'Ragazzi', nav_tasks: 'Compiti', nav_commitments: 'Impegni',
+    nav_weekly_activities: 'Attività settimanali', nav_stats: 'Statistiche',
+    stats_title: 'Statistiche mensili compiti',
+    stats_legend: 'Legenda compiti',
+    stats_never_done: 'Compiti mai svolti',
+    stats_prev_month: 'Precedente',
+    stats_next_month: 'Successivo',
+    stats_current_month: 'Questo mese',
     nav_profile: 'Profilo', nav_home: 'Home', nav_logout: 'Esci', nav_notifications: 'Notifiche',
     auth_login: 'Accedi a Diaconia', auth_email: 'Email', auth_password: 'Password',
     auth_login_btn: 'Accedi', auth_logging_in: 'Accesso in corso...', auth_error: 'Credenziali non valide',
@@ -93,7 +132,7 @@ const translations: TranslationsMap = {
     dash_title: 'Panoramica', dash_active_ragazzi: 'Ragazzi registrati in piattaforma', dash_weekly_tasks: 'Compiti di questa settimana',
     dash_completions: 'Compiti completati questa settimana', dash_pending: 'Compiti non ancora svolti',
     dash_welcome: 'Benvenuto nella piattaforma Diaconia', dash_quick_actions: 'Azioni rapide',
-    dash_section_ragazzi: 'Ragazzi', dash_section_weekly: 'Settimanale',
+    dash_section_ragazzi: 'Ragazzi', dash_section_weekly: 'Settimanale', dash_general_tasks: 'Compiti generali',
     report_open: 'Apri report',
     rag_title: 'Ragazzi', rag_add: 'Aggiungi ragazzo', rag_first_name: 'Nome', rag_last_name: 'Cognome',
     rag_birth_date: 'Data di nascita', rag_phone: 'Telefono', rag_email: 'Email', rag_tax_code: 'Codice fiscale',
@@ -102,15 +141,31 @@ const translations: TranslationsMap = {
     task_title: 'Compiti settimanali', task_add: 'Aggiungi compito', task_name: 'Nome compito',
     task_points: 'Punti', task_assign: 'Assegna a', task_unassigned: 'Non assegnato',
     task_complete: 'Fatto', task_book: 'Faccio io!', task_completed: 'Finito!',
-    task_week: 'Settimana', task_prev_week: 'Settimana precedente', task_next_week: 'Settimana successiva',
-    task_today: 'Oggi', task_my_tasks: 'I miei compiti', task_none_assigned: 'Nessun compito assegnato',
+    task_week: 'Settimana', task_prev_week: 'Precedente', task_next_week: 'Successiva',
+    task_today: 'Questa settimana', task_my_tasks: 'I miei compiti', task_none_assigned: 'Nessun compito assegnato',
     task_available: 'Compiti disponibili', task_none_available: 'Nessun compito disponibile',
+    task_manage: 'Modifica compiti', task_manage_title: 'Compiti settimana',
+    task_empty: 'Nessun compito. Aggiungine uno per iniziare.',
+    task_confirm_delete: 'Eliminare questo compito? Tutti i completamenti collegati verranno rimossi.',
+    task_templates_title: 'Compiti generali',
+    task_template_drop_here: 'Trascina qui un nuovo compito',
+    task_template_drop_hint: 'Rilascia per aggiungerlo alla settimana',
+    task_templates_empty: 'Nessun compito generale. Aggiungine uno per iniziare.',
+    task_template_add: 'Aggiungi compito generale',
+    task_template_confirm_delete: 'Eliminare questo compito generale? Le istanze già aggiunte alle settimane non verranno toccate.',
+    task_template_already_in_week: 'Già nella settimana',
+    task_completion_confirm_title: 'Il ragazzo ha svolto l\'attività?',
+    task_completion_confirm_yes: 'Sì, confermo',
+    task_completion_confirm_no: 'No',
+    task_completion_pending_tooltip: 'In attesa di conferma — clicca per rivedere',
     day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Gio',
     day_fri: 'Ven', day_sat: 'Sab', day_sun: 'Dom',
     report_title: 'Report', report_of: 'di', report_add: 'Nuovo report', report_date: 'Data',
     report_daily_area: 'Area quotidiana', report_health: 'Salute', report_family_area: 'Area familiare',
     report_social_relational: 'Socio-relazionale', report_psycho_affective: 'Psico-affettivo',
-    report_individual_session: 'Sessione individuale', report_save: 'Salva report', report_voice: 'Dettatura vocale',
+    report_cognitive_area: 'Area cognitiva',
+    report_individual_session: 'Colloquio individuale', report_save: 'Salva report', report_voice: 'Dettatura vocale',
+    report_edit: 'Modifica report',
     report_empty: 'Report vuoto',
     photo_title: 'Documenti', photo_upload: 'Carica un documento', photo_delete: 'Elimina',
     photo_confirm_delete: 'Sei sicuro di voler eliminare questo file?',
@@ -119,7 +174,13 @@ const translations: TranslationsMap = {
     points_title: 'Punti', points_weekly: 'Punti settimanali', chart_points: 'Punti',
     points_card_pre: 'Hai accumulato', points_card_post: 'punti. Grande!',
     top_task_title: 'Compito preferito:', top_task_count_pre: 'Svolto', top_task_count_post: 'volte',
-    commit_title: 'Impegni settimanali', commit_add: 'Aggiungi impegno', commit_text: 'Testo impegno', commit_day: 'Giorno',
+    commit_title: 'Impegni settimanali', commit_add: 'Aggiungi impegno', commit_text: 'Testo impegno', commit_day: 'Giorno', commit_edit: 'Modifica impegno',
+    weekly_activities: 'Attività settimanali',
+    wa_manage: 'Modifica fasce attività', wa_manage_title: 'Fasce attività',
+    wa_add: 'Aggiungi fascia', wa_name: 'Nome fascia',
+    wa_empty: 'Nessuna fascia. Aggiungine una per iniziare.',
+    wa_confirm_delete: 'Eliminare questa fascia? Tutte le voci collegate verranno rimosse.',
+    wa_download_pdf: 'Scarica PDF',
     notif_title: 'Notifiche', notif_mark_all: 'Segna tutto come letto', notif_empty: 'Nessuna notifica',
     profile_personal_info: 'Informazioni personali', profile_settings: 'Impostazioni',
     settings_text_size: 'Dimensione testo', settings_text_size_normal: 'Normale', settings_text_size_large: 'Grande',
@@ -133,6 +194,15 @@ const translations: TranslationsMap = {
     common_cancel: 'Annulla', common_confirm: 'Conferma', common_close: 'Chiudi',
     common_search: 'Cerca...', common_no_data: 'Nessun dato disponibile',
     email_precompiled_button: "Invia un'email precompilata",
+    email_warning_title: 'Avvertenza',
+    email_warning_heading: 'Se non si è aperto il tuo client email…',
+    email_warning_body: 'Il tuo dispositivo non ha un\'app email predefinita configurata per gestire i link "mailto:". Devi sceglierne una dalle impostazioni del sistema:',
+    email_warning_windows: 'Windows: Impostazioni → App → App predefinite → cerca "mailto" o l\'app email (Outlook, Posta, Thunderbird) e assegnala.',
+    email_warning_macos: 'macOS: apri l\'app Mail → Mail → Impostazioni → Generali → "App email predefinita".',
+    email_warning_alt: 'In alternativa puoi aprire direttamente Gmail con il pulsante qui sotto, o copiare il testo precompilato e incollarlo nel client che preferisci.',
+    email_copy: 'Copia testo email',
+    email_copy_done: 'Copiato!',
+    email_open_gmail: 'Apri in Gmail',
   },
   en: {
     nav_dashboard: 'Dashboard', nav_ragazzi: 'Residents', nav_tasks: 'Tasks', nav_commitments: 'Commitments',
