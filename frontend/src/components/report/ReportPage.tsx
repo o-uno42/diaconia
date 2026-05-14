@@ -201,6 +201,22 @@ export default function ReportPage() {
               autoFocus
             />
           </div>
+
+          <div className="flex justify-center">
+            <button
+              type="button"
+              aria-label="Microfono"
+              className="w-16 h-16 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-md hover:bg-violet-700 active:scale-95 transition-all"
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" aria-hidden="true">
+                <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="2" />
+                <path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M12 17v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M9 21h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+
           <div className="flex gap-3 justify-end">
             <Button variant="ghost" onClick={() => setAddArea(null)}>{t('common_cancel', lang)}</Button>
             <Button onClick={handleSaveAddArea}>{t('common_save', lang)}</Button>
