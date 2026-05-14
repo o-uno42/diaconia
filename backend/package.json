@@ -11,10 +11,13 @@
   "dependencies": {
     "@diaconia/shared": "*",
     "@supabase/supabase-js": "^2.43.4",
+    "@types/pdfkit": "^0.17.6",
     "cors": "^2.8.5",
+    "docx": "^9.6.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.18.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

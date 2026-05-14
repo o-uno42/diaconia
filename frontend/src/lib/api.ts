@@ -46,6 +46,33 @@ export async function apiDelete(path: string): Promise<ApiResponse<void>> {
   return request<void>('DELETE', path);
 }
 
+export async function apiDownloadFile(path: string, filename: string): Promise<void> {
+  try {
+    const token = await getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const url = `${BASE_URL}${path}`;
+    console.log('[download] GET', url);
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('[download] error', res.status, text);
+      return;
+    }
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(objectUrl);
+  } catch (err) {
+    console.error('[download] exception', err);
+  }
+}
+
 export async function apiUpload<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
   const token = await getToken();
   const headers: Record<string, string> = {};

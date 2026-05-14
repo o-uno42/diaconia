@@ -4,6 +4,7 @@ import { apiGet, apiPost, apiPatch, apiDelete } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_WEEKLY_ACTIVITIES, getMockWeeklyActivityEntries } from '../../lib/mockData';
 import { getWeekId, formatWeekRange } from '../../hooks/useTasks';
+import { apiDownloadFile } from '../../lib/api';
 import { t, getDayLabels } from '../../i18n/translations';
 import type { WeeklyActivity, WeeklyActivityEntry } from '@shared/types';
 import Button from '../ui/Button';
@@ -122,6 +123,14 @@ export default function WeeklyActivitiesPage() {
     }
     setRenamingId(null);
     setRenamingText('');
+  };
+
+  const handleDownloadPdf = async () => {
+    const weekLabel = formatWeekRange(weekOffset, lang);
+    await apiDownloadFile(
+      `/api/export/weekly-activities-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `weekly-activities-${weekId}.pdf`,
+    );
   };
 
   const handleDeleteActivity = async (id: string) => {
@@ -321,7 +330,7 @@ export default function WeeklyActivitiesPage() {
         </div>
       </Modal>
 
-      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} />
+      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} onClick={handleDownloadPdf} />
     </div>
   );
 }

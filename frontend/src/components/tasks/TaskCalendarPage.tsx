@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppContext } from '../../store/AppContext';
-import { useTasks, formatWeekRange } from '../../hooks/useTasks';
+import { useTasks, formatWeekRange, getWeekId } from '../../hooks/useTasks';
 import { useTaskTemplates } from '../../hooks/useTaskTemplates';
 import { t, getDayLabels } from '../../i18n/translations';
 import Button from '../ui/Button';
@@ -11,6 +11,7 @@ import Card from '../ui/Card';
 import manageImg from '../../assets/manage.png';
 import type { TaskCompletion } from '@shared/types';
 import DownloadPDFFAB from '../ui/DownloadPDFFAB';
+import { apiDownloadFile } from '../../lib/api';
 
 const DRAG_MIME = 'application/x-task-template';
 
@@ -34,6 +35,16 @@ export default function TaskCalendarPage() {
 
   useEffect(() => { fetchTasks(); }, [weekOffset, fetchTasks]);
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
+
+  const handleDownloadPdf = async () => {
+    console.log('[FAB] download clicked');
+    const weekId = getWeekId(weekOffset);
+    const weekLabel = formatWeekRange(weekOffset, lang);
+    await apiDownloadFile(
+      `/api/export/tasks-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `task-calendar-${weekId}.pdf`,
+    );
+  };
 
   // Set of names already in this week — used to dim templates that can't be re-added
   const weekTaskNames = new Set(tasks.map((t) => t.name));
@@ -282,7 +293,7 @@ export default function TaskCalendarPage() {
         </>
       )}
 
-      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} />
+      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} onClick={handleDownloadPdf} />
 
       {/* Decorative image — fixed so it's not clipped by layout overflow */}
       <img

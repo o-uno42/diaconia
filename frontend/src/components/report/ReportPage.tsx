@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppContext } from '../../store/AppContext';
-import { apiGet, apiPost, apiPatch, apiDelete } from '../../lib/api';
+import { apiGet, apiPost, apiPatch, apiDelete, apiDownloadFile } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { MOCK_REPORTS, MOCK_RAGAZZI } from '../../lib/mockData';
 import { t, type TranslationKeys } from '../../i18n/translations';
@@ -216,7 +216,19 @@ export default function ReportPage() {
           {t('report_title', lang)} {t('report_of', lang)} {ragazzo?.firstName} {ragazzo?.lastName}{' '}
           <span className="text-[17px] text-violet-800">({monthRange.label})</span>
         </h1>
-        <Button className='bg-indigo-600 hover:bg-indigo-800 text-white'>
+        <Button
+          className='bg-indigo-600 hover:bg-indigo-800 text-white'
+          onClick={async () => {
+            const { start } = monthRange;
+            const year = start.getFullYear();
+            const month = start.getMonth() + 1;
+            const name = ragazzo ? `${ragazzo.firstName}-${ragazzo.lastName}` : id ?? 'report';
+            await apiDownloadFile(
+              `/api/ragazzi/${id}/report/export/docx?year=${year}&month=${month}`,
+              `report-${name}-${monthRange.label}.docx`,
+            );
+          }}
+        >
           {t('report_download', lang)} ({monthRange.label})
         </Button>
       </div>

@@ -4,6 +4,7 @@ import { apiGet, apiPost, apiPatch, apiDelete } from '../../lib/api';
 import { isMockMode } from '../../lib/supabase';
 import { getMockCommitments } from '../../lib/mockData';
 import { getWeekId, formatWeekRange } from '../../hooks/useTasks';
+import { apiDownloadFile } from '../../lib/api';
 import { t, getDayLabels } from '../../i18n/translations';
 import type { Commitment } from '@shared/types';
 import Button from '../ui/Button';
@@ -32,6 +33,14 @@ export default function CommitmentsCalendarPage() {
       if (res.data) setCommitments(res.data);
     });
   }, [weekId]);
+
+  const handleDownloadPdf = async () => {
+    const weekLabel = formatWeekRange(weekOffset, lang);
+    await apiDownloadFile(
+      `/api/export/commitments-pdf?weekId=${encodeURIComponent(weekId)}&weekLabel=${encodeURIComponent(weekLabel)}`,
+      `commitments-${weekId}.pdf`,
+    );
+  };
 
   const handleCreate = async () => {
     if (!newText.trim() || !newRagazzoId) return;
@@ -223,7 +232,7 @@ export default function CommitmentsCalendarPage() {
         </table>
       </div>
 
-      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} />
+      <DownloadPDFFAB weekOffset={weekOffset} lang={lang} onClick={handleDownloadPdf} />
 
       <Modal isOpen={showCreate} onClose={() => { setShowCreate(false); setNewText(''); }} title={commitments.find((c) => c.ragazzoId === newRagazzoId && c.day === newDay) ? t('commit_edit', lang) : t('commit_add', lang)} size="sm">
         <div className="space-y-4">
