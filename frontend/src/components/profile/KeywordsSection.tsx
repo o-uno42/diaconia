@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import Badge from '../ui/Badge';
+import { useAppContext } from '../../store/AppContext';
+import { t } from '../../i18n/translations';
 
 interface KeywordsSectionProps {
   keywords: string[];
@@ -8,6 +10,8 @@ interface KeywordsSectionProps {
 }
 
 export default function KeywordsSection({ keywords, editable, onChange }: KeywordsSectionProps) {
+  const { state } = useAppContext();
+  const lang = state.language;
   const [newKeyword, setNewKeyword] = useState('');
 
   const addKeyword = () => {
@@ -32,7 +36,7 @@ export default function KeywordsSection({ keywords, editable, onChange }: Keywor
             )}
           </Badge>
         ))}
-        {keywords.length === 0 && <p className="text-white/30 text-sm">Nessuna parola chiave</p>}
+        {keywords.length === 0 && <p className="text-stone-800/30 text-sm">{t('keywords_empty', lang)}</p>}
       </div>
       {editable && (
         <div className="flex gap-2 mt-3">
@@ -42,7 +46,7 @@ export default function KeywordsSection({ keywords, editable, onChange }: Keywor
             onChange={(e) => setNewKeyword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
             className="input-field flex-1"
-            placeholder="Nuova parola chiave..."
+            placeholder={t('keywords_new_placeholder', lang)}
           />
           <button onClick={addKeyword} className="btn-secondary text-sm">+</button>
         </div>

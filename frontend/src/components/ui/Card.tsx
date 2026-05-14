@@ -16,7 +16,7 @@ export default function Card({ children, header, footer, className = '', hover, 
       onClick={onClick}
     >
       {header && <div className="px-6 py-4 border-b border-white/10">{header}</div>}
-      <div className="p-6">{children}</div>
+      <div className={`px-6 ${header ? 'pt-0' : 'p-6'} pb-6`}>{children}</div>
       {footer && <div className="px-6 py-4 border-t border-white/10">{footer}</div>}
     </div>
   );

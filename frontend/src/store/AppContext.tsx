@@ -5,6 +5,8 @@ import type { UserProfile, Ragazzo, Task, Notification, Language } from '@shared
 interface AppState {
   currentUser: UserProfile | null;
   language: Language;
+  textScalePercent: number;
+  highContrast: boolean;
   ragazzi: Ragazzo[];
   tasks: Task[];
   notifications: Notification[];
@@ -16,6 +18,8 @@ interface AppState {
 const initialState: AppState = {
   currentUser: null,
   language: 'it',
+  textScalePercent: 100,
+  highContrast: false,
   ragazzi: [],
   tasks: [],
   notifications: [],
@@ -28,6 +32,8 @@ const initialState: AppState = {
 type AppAction =
   | { type: 'SET_USER'; payload: UserProfile | null }
   | { type: 'SET_LANGUAGE'; payload: Language }
+  | { type: 'SET_TEXT_SCALE_PERCENT'; payload: number }
+  | { type: 'SET_HIGH_CONTRAST'; payload: boolean }
   | { type: 'SET_RAGAZZI'; payload: Ragazzo[] }
   | { type: 'UPDATE_RAGAZZO'; payload: Ragazzo }
   | { type: 'ADD_RAGAZZO'; payload: Ragazzo }
@@ -44,9 +50,33 @@ type AppAction =
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_USER':
-      return { ...state, currentUser: action.payload };
+      return {
+        ...state,
+        currentUser: action.payload,
+        textScalePercent:
+          action.payload?.role === 'ragazzo'
+            ? (action.payload.textScalePercent ?? 100)
+            : 100,
+        highContrast: action.payload?.highContrast ?? false,
+      };
     case 'SET_LANGUAGE':
       return { ...state, language: action.payload };
+    case 'SET_TEXT_SCALE_PERCENT':
+      return {
+        ...state,
+        textScalePercent: action.payload,
+        currentUser: state.currentUser
+          ? { ...state.currentUser, textScalePercent: action.payload }
+          : state.currentUser,
+      };
+    case 'SET_HIGH_CONTRAST':
+      return {
+        ...state,
+        highContrast: action.payload,
+        currentUser: state.currentUser
+          ? { ...state.currentUser, highContrast: action.payload }
+          : state.currentUser,
+      };
     case 'SET_RAGAZZI':
       return { ...state, ragazzi: action.payload };
     case 'UPDATE_RAGAZZO':

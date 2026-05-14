@@ -30,7 +30,7 @@ router.post('/:id/photos', requireAdminOrOwn, upload.single('file'), async (req:
   const storagePath = `${ragazzoId}/${photoId}-${file.originalname}`;
 
   try {
-    const { error: uploadError } = await supabase.storage.from('ragazzo-photos')
+    const { error: uploadError } = await supabase.storage.from('ragazzo_photos')
       .upload(storagePath, file.buffer, { contentType: file.mimetype });
     if (uploadError) { res.status(500).json({ error: uploadError.message }); return; }
 
@@ -52,7 +52,7 @@ router.delete('/:id/photos/:photoId', requireAdminOrOwn, async (req: Request, re
   try {
     const { data: photo } = await supabase.from('ragazzo_photos').select('storage_path')
       .eq('id', req.params['photoId']).single();
-    if (photo) { await supabase.storage.from('ragazzo-photos').remove([photo.storage_path]); }
+    if (photo) { await supabase.storage.from('ragazzo_photos').remove([photo.storage_path]); }
 
     const { error } = await supabase.from('ragazzo_photos').delete().eq('id', req.params['photoId']);
     if (error) { res.status(500).json({ error: error.message }); return; }
@@ -67,8 +67,8 @@ router.get('/:id/photos/:photoId/url', requireAdminOrOwn, async (req: Request, r
       .eq('id', req.params['photoId']).single();
     if (!photo) { res.status(404).json({ error: 'Photo not found' }); return; }
 
-    const { data, error } = await supabase.storage.from('ragazzo-photos')
-      .createSignedUrl(photo.storage_path, 60);
+    const { data, error } = await supabase.storage.from('ragazzo_photos')
+      .createSignedUrl(photo.storage_path, 3600);
     if (error || !data) { res.status(500).json({ error: error?.message ?? 'Failed' }); return; }
     res.json({ data: { url: data.signedUrl } });
   } catch { res.status(500).json({ error: 'Failed to generate URL' }); }

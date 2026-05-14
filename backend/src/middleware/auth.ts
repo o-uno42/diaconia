@@ -39,7 +39,7 @@ export async function authMiddleware(
     // Fetch profile for role info
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('role, ragazzo_id')
+      .select('role, ragazzo_id, text_scale_percent, high_contrast')
       .eq('id', user.id)
       .single();
 
@@ -53,6 +53,8 @@ export async function authMiddleware(
       role: profile.role as UserProfile['role'],
       email: user.email ?? '',
       ragazzoId: profile.ragazzo_id ?? undefined,
+      textScalePercent: profile.text_scale_percent ?? 100,
+      highContrast: profile.high_contrast ?? false,
     };
 
     next();

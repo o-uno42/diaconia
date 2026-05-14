@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  html {
+    @apply scroll-smooth bg-stone-100;
+  }
+  body {
+    @apply bg-stone-100 text-stone-800 font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
+  }
+  [dir="rtl"] {
+    direction: rtl;
+  }
+}
+
+@layer components {
+  /* Card stile "Vetro Caldo" ispirata ai toni crema */
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-md border border-stone-200/60 rounded-2xl shadow-sm;
+  }
+
+  /* Sfondo Admin: Toni fango/sabbia profondi (da image_2d96d9.png) */
+  .gradient-admin {
+    background: linear-gradient(135deg, #a8a29e 0%, #78716c 50%, #44403c 100%);
+  }
+
+  /* Sfondo Ragazzo: Toni pastello calmi (da image_2d9772.png) */
+  .gradient-ragazzo {
+    background: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
+  }
+
+  /* Accenti Pastello Soft */
+  .gradient-accent {
+    background: linear-gradient(135deg, #d8b4fe 0%, #818cf8 100%); /* Lavanda e Pervinca */
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%); /* Verde Menta */
+  }
+
+  /* Bottoni: Contrasto alto ma colori meno aggressivi */
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl font-bold text-stone-900 transition-all duration-200
+           bg-[#C7D2FE] hover:bg-[#A5B4FC] shadow-sm /* Pastello indaco chiaro */
+           active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 rounded-xl font-semibold transition-all duration-200
+           bg-stone-200/50 text-stone-800 border border-stone-300
+           hover:bg-stone-200 active:scale-[0.98];
+  }
+
+  /* Input Field: Fondo crema per ridurre lo stress visivo */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl bg-[#f5f5f4] border border-stone-300
+           text-stone-900 placeholder-stone-400 outline-none
+           focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100
+           transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-y {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .text-gradient {
+    /* Gradiente leggibile su fondo chiaro */
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600;
+  }
+  
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d3d1 transparent;
+  }
+}

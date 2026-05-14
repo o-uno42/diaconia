@@ -1,5 +1,32 @@
 import { supabase } from '../lib/supabase';
-import type { WeeklyPoints } from '../../../packages/shared/types';
+import type { WeeklyPoints, TopTask } from '../../../packages/shared/types';
+
+/**
+ * Find the task NAME that the ragazzo has completed the most times.
+ * Aggregates across all weeks (the same "Pulizia cucina" lives as a fresh
+ * `tasks` row each week, so we count by name rather than by task_id).
+ */
+export async function getTopTask(ragazzoId: string): Promise<TopTask | null> {
+  const { data: completions } = await supabase
+    .from('task_completions')
+    .select('tasks(name)')
+    .eq('ragazzo_id', ragazzoId);
+
+  if (!completions || completions.length === 0) return null;
+
+  const counts = new Map<string, number>();
+  for (const c of completions) {
+    const task = c.tasks as unknown as { name: string } | null;
+    if (!task?.name) continue;
+    counts.set(task.name, (counts.get(task.name) ?? 0) + 1);
+  }
+
+  let top: TopTask | null = null;
+  for (const [name, count] of counts.entries()) {
+    if (!top || count > top.count) top = { name, count };
+  }
+  return top;
+}
 
 /**
  * Compute weekly points on-the-fly from task_completions + tasks.

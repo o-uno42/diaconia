@@ -12,6 +12,7 @@ import notificationsRoutes from './routes/notifications';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
+const HOST = process.env.HOST ?? '0.0.0.0';
 
 // Middleware
 app.use(cors());
@@ -41,8 +42,8 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Diaconia API running on http://localhost:${PORT}`);
+app.listen(Number(PORT), HOST, () => {
+  console.log(`🚀 Diaconia API running on http://${HOST}:${PORT}`);
 });
 
 export default app;

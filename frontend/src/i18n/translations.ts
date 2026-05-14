@@ -1,15 +1,23 @@
 import type { Language } from '@shared/types';
 
 type TranslationKeys = {
+  // Brand
+  brand_subtitle: string; brand_tagline: string;
+  // Roles
+  role_admin: string; role_ragazzo: string;
   // Nav
   nav_dashboard: string; nav_ragazzi: string; nav_tasks: string; nav_commitments: string;
   nav_profile: string; nav_home: string; nav_logout: string; nav_notifications: string;
   // Auth
   auth_login: string; auth_email: string; auth_password: string; auth_login_btn: string;
   auth_logging_in: string; auth_error: string;
+  auth_demo_credentials: string; auth_demo_password_hint: string;
   // Dashboard
   dash_title: string; dash_active_ragazzi: string; dash_weekly_tasks: string;
   dash_completions: string; dash_pending: string;
+  dash_welcome: string; dash_quick_actions: string;
+  dash_section_ragazzi: string; dash_section_weekly: string;
+  report_open: string;
   // Ragazzi
   rag_title: string; rag_add: string; rag_first_name: string; rag_last_name: string;
   rag_birth_date: string; rag_phone: string; rag_email: string; rag_tax_code: string;
@@ -19,57 +27,104 @@ type TranslationKeys = {
   task_title: string; task_add: string; task_name: string; task_points: string;
   task_assign: string; task_unassigned: string; task_complete: string; task_book: string;
   task_completed: string; task_week: string; task_prev_week: string; task_next_week: string;
+  task_today: string; task_my_tasks: string; task_none_assigned: string;
+  task_available: string; task_none_available: string;
   // Days
   day_mon: string; day_tue: string; day_wed: string; day_thu: string;
   day_fri: string; day_sat: string; day_sun: string;
   // Report
-  report_title: string; report_add: string; report_date: string;
+  report_title: string; report_of: string; report_add: string; report_date: string;
   report_daily_area: string; report_health: string; report_family_area: string;
   report_social_relational: string; report_psycho_affective: string;
   report_individual_session: string; report_save: string; report_voice: string;
+  report_empty: string;
   // Photos
   photo_title: string; photo_upload: string; photo_delete: string; photo_confirm_delete: string;
+  photo_preview: string; photo_confirm_delete_title: string; photo_demo_warning: string;
   // Points
-  points_title: string; points_weekly: string;
+  points_title: string; points_weekly: string; chart_points: string;
+  points_card_pre: string; points_card_post: string;
+  top_task_title: string; top_task_count_pre: string; top_task_count_post: string;
   // Commitments
-  commit_title: string; commit_add: string; commit_text: string;
+  commit_title: string; commit_add: string; commit_text: string; commit_day: string;
   // Notifications
   notif_title: string; notif_mark_all: string; notif_empty: string;
+  // Profile
+  profile_personal_info: string; profile_settings: string;
+  // Accessibility
+  settings_text_size: string; settings_text_size_normal: string; settings_text_size_large: string;
+  settings_visual_accessibility: string;
+  // Keywords
+  keywords_empty: string; keywords_new_placeholder: string;
+  // Ragazzo Home
+  ragazzo_home_title: string; ragazzo_greeting: string; ragazzo_welcome: string; ragazzo_your_role: string;
+  // Demo
+  demo_mode_banner: string;
   // Common
   common_loading: string; common_error: string; common_save: string; common_cancel: string;
   common_confirm: string; common_close: string; common_search: string; common_no_data: string;
+  // Email
+  email_precompiled_button: string;
 };
 
-const translations: Record<Language, TranslationKeys> = {
+// Italian is the source of truth — must be complete.
+// Other languages are Partial; missing keys fall back to Italian via t().
+type TranslationsMap =
+  { it: TranslationKeys }
+  & { [K in Exclude<Language, 'it'>]: Partial<TranslationKeys> };
+
+const translations: TranslationsMap = {
   it: {
-    nav_dashboard: 'Dashboard', nav_ragazzi: 'Ragazzi', nav_tasks: 'Compiti', nav_commitments: 'Impegni',
+    brand_subtitle: 'Gestire la quotidianità', brand_tagline: 'Vivere la quotidianità, insieme',
+    role_admin: 'Admin', role_ragazzo: 'Ragazzo',
+    nav_dashboard: 'Panoramica', nav_ragazzi: 'Ragazzi', nav_tasks: 'Compiti', nav_commitments: 'Impegni',
     nav_profile: 'Profilo', nav_home: 'Home', nav_logout: 'Esci', nav_notifications: 'Notifiche',
     auth_login: 'Accedi a Diaconia', auth_email: 'Email', auth_password: 'Password',
     auth_login_btn: 'Accedi', auth_logging_in: 'Accesso in corso...', auth_error: 'Credenziali non valide',
-    dash_title: 'Dashboard', dash_active_ragazzi: 'Ragazzi attivi', dash_weekly_tasks: 'Compiti settimanali',
-    dash_completions: 'Completamenti', dash_pending: 'In attesa',
+    auth_demo_credentials: 'Credenziali demo', auth_demo_password_hint: 'Password: demo1234',
+    dash_title: 'Panoramica', dash_active_ragazzi: 'Ragazzi registrati in piattaforma', dash_weekly_tasks: 'Compiti di questa settimana',
+    dash_completions: 'Compiti completati questa settimana', dash_pending: 'Compiti non ancora svolti',
+    dash_welcome: 'Benvenuto nella piattaforma Diaconia', dash_quick_actions: 'Azioni rapide',
+    dash_section_ragazzi: 'Ragazzi', dash_section_weekly: 'Settimanale',
+    report_open: 'Apri report',
     rag_title: 'Ragazzi', rag_add: 'Aggiungi ragazzo', rag_first_name: 'Nome', rag_last_name: 'Cognome',
     rag_birth_date: 'Data di nascita', rag_phone: 'Telefono', rag_email: 'Email', rag_tax_code: 'Codice fiscale',
     rag_language: 'Lingua', rag_keywords: 'Parole chiave', rag_save: 'Salva', rag_cancel: 'Annulla',
     rag_edit: 'Modifica', rag_delete: 'Elimina', rag_view: 'Visualizza',
-    task_title: 'Calendario compiti', task_add: 'Aggiungi compito', task_name: 'Nome compito',
+    task_title: 'Compiti settimanali', task_add: 'Aggiungi compito', task_name: 'Nome compito',
     task_points: 'Punti', task_assign: 'Assegna a', task_unassigned: 'Non assegnato',
-    task_complete: 'Completa', task_book: 'Prenota', task_completed: 'Completato',
+    task_complete: 'Fatto', task_book: 'Faccio io!', task_completed: 'Finito!',
     task_week: 'Settimana', task_prev_week: 'Settimana precedente', task_next_week: 'Settimana successiva',
+    task_today: 'Oggi', task_my_tasks: 'I miei compiti', task_none_assigned: 'Nessun compito assegnato',
+    task_available: 'Compiti disponibili', task_none_available: 'Nessun compito disponibile',
     day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Gio',
     day_fri: 'Ven', day_sat: 'Sab', day_sun: 'Dom',
-    report_title: 'Report', report_add: 'Nuovo report', report_date: 'Data',
+    report_title: 'Report', report_of: 'di', report_add: 'Nuovo report', report_date: 'Data',
     report_daily_area: 'Area quotidiana', report_health: 'Salute', report_family_area: 'Area familiare',
     report_social_relational: 'Socio-relazionale', report_psycho_affective: 'Psico-affettivo',
     report_individual_session: 'Sessione individuale', report_save: 'Salva report', report_voice: 'Dettatura vocale',
-    photo_title: 'Foto e documenti', photo_upload: 'Carica file', photo_delete: 'Elimina',
+    report_empty: 'Report vuoto',
+    photo_title: 'Documenti', photo_upload: 'Carica un documento', photo_delete: 'Elimina',
     photo_confirm_delete: 'Sei sicuro di voler eliminare questo file?',
-    points_title: 'Punti', points_weekly: 'Punti settimanali',
-    commit_title: 'Impegni settimanali', commit_add: 'Aggiungi impegno', commit_text: 'Testo impegno',
+    photo_preview: 'Anteprima', photo_confirm_delete_title: 'Conferma eliminazione',
+    photo_demo_warning: 'Demo mode — le foto non vengono salvate',
+    points_title: 'Punti', points_weekly: 'Punti settimanali', chart_points: 'Punti',
+    points_card_pre: 'Hai accumulato', points_card_post: 'punti. Grande!',
+    top_task_title: 'Compito preferito:', top_task_count_pre: 'Svolto', top_task_count_post: 'volte',
+    commit_title: 'Impegni settimanali', commit_add: 'Aggiungi impegno', commit_text: 'Testo impegno', commit_day: 'Giorno',
     notif_title: 'Notifiche', notif_mark_all: 'Segna tutto come letto', notif_empty: 'Nessuna notifica',
+    profile_personal_info: 'Informazioni personali', profile_settings: 'Impostazioni',
+    settings_text_size: 'Dimensione testo', settings_text_size_normal: 'Normale', settings_text_size_large: 'Grande',
+    settings_visual_accessibility: 'Accessibilità visiva',
+    keywords_empty: 'Nessuna parola chiave', keywords_new_placeholder: 'Nuova parola chiave...',
+    ragazzo_home_title: 'Rieccoti a casa!',
+    ragazzo_greeting: 'Ciao!', ragazzo_welcome: 'Benvenuto nella tua area personale',
+    ragazzo_your_role: 'Il tuo ruolo',
+    demo_mode_banner: 'Modalità demo — nessun backend collegato',
     common_loading: 'Caricamento...', common_error: 'Si è verificato un errore', common_save: 'Salva',
     common_cancel: 'Annulla', common_confirm: 'Conferma', common_close: 'Chiudi',
     common_search: 'Cerca...', common_no_data: 'Nessun dato disponibile',
+    email_precompiled_button: "Invia un'email precompilata",
   },
   en: {
     nav_dashboard: 'Dashboard', nav_ragazzi: 'Residents', nav_tasks: 'Tasks', nav_commitments: 'Commitments',
@@ -94,9 +149,10 @@ const translations: Record<Language, TranslationKeys> = {
     report_individual_session: 'Individual session', report_save: 'Save report', report_voice: 'Voice input',
     photo_title: 'Photos & Documents', photo_upload: 'Upload file', photo_delete: 'Delete',
     photo_confirm_delete: 'Are you sure you want to delete this file?',
-    points_title: 'Points', points_weekly: 'Weekly points',
+    points_title: 'Points', points_weekly: 'Weekly points', chart_points: 'Points',
     commit_title: 'Weekly Commitments', commit_add: 'Add commitment', commit_text: 'Commitment text',
     notif_title: 'Notifications', notif_mark_all: 'Mark all as read', notif_empty: 'No notifications',
+    ragazzo_home_title: 'Welcome home',
     common_loading: 'Loading...', common_error: 'An error occurred', common_save: 'Save',
     common_cancel: 'Cancel', common_confirm: 'Confirm', common_close: 'Close',
     common_search: 'Search...', common_no_data: 'No data available',
@@ -124,9 +180,10 @@ const translations: Record<Language, TranslationKeys> = {
     report_individual_session: 'Session individuelle', report_save: 'Enregistrer rapport', report_voice: 'Dictée vocale',
     photo_title: 'Photos et documents', photo_upload: 'Télécharger', photo_delete: 'Supprimer',
     photo_confirm_delete: 'Êtes-vous sûr de vouloir supprimer ce fichier?',
-    points_title: 'Points', points_weekly: 'Points hebdomadaires',
+    points_title: 'Points', points_weekly: 'Points hebdomadaires', chart_points: 'Points',
     commit_title: 'Engagements hebdomadaires', commit_add: 'Ajouter engagement', commit_text: 'Texte',
     notif_title: 'Notifications', notif_mark_all: 'Tout marquer comme lu', notif_empty: 'Aucune notification',
+    ragazzo_home_title: 'Bon retour a la maison!',
     common_loading: 'Chargement...', common_error: 'Une erreur est survenue', common_save: 'Enregistrer',
     common_cancel: 'Annuler', common_confirm: 'Confirmer', common_close: 'Fermer',
     common_search: 'Rechercher...', common_no_data: 'Aucune donnée disponible',
@@ -154,9 +211,10 @@ const translations: Record<Language, TranslationKeys> = {
     report_individual_session: 'الجلسة الفردية', report_save: 'حفظ التقرير', report_voice: 'إدخال صوتي',
     photo_title: 'الصور والمستندات', photo_upload: 'رفع ملف', photo_delete: 'حذف',
     photo_confirm_delete: 'هل أنت متأكد من حذف هذا الملف؟',
-    points_title: 'النقاط', points_weekly: 'النقاط الأسبوعية',
+    points_title: 'النقاط', points_weekly: 'النقاط الأسبوعية', chart_points: 'النقاط',
     commit_title: 'الالتزامات الأسبوعية', commit_add: 'إضافة التزام', commit_text: 'نص الالتزام',
     notif_title: 'الإشعارات', notif_mark_all: 'تحديد الكل كمقروء', notif_empty: 'لا توجد إشعارات',
+    ragazzo_home_title: 'مرحبا بعودتك إلى المنزل!',
     common_loading: 'جاري التحميل...', common_error: 'حدث خطأ', common_save: 'حفظ',
     common_cancel: 'إلغاء', common_confirm: 'تأكيد', common_close: 'إغلاق',
     common_search: 'بحث...', common_no_data: 'لا توجد بيانات',
@@ -164,7 +222,7 @@ const translations: Record<Language, TranslationKeys> = {
 };
 
 export function t(key: keyof TranslationKeys, lang: Language = 'it'): string {
-  return translations[lang][key] ?? translations['it'][key] ?? key;
+  return translations[lang]?.[key] ?? translations['it'][key] ?? key;
 }
 
 export function getDayLabels(lang: Language): string[] {

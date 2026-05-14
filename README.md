@@ -31,9 +31,9 @@ npm install
 ### 2. Configura Supabase (opzionale — la modalità demo funziona senza)
 
 1. Crea un progetto su [supabase.com](https://supabase.com)
-2. Vai su **SQL Editor** e incolla il contenuto di `supabase/migrations/001_initial.sql`
-3. Vai su **Storage** e crea un bucket `ragazzo-photos` (privato)
-4. Copia le chiavi nelle variabili d'ambiente:
+2. Vai su **SQL Editor** ed esegui le migrations in ordine: `supabase/migrations/001_initial.sql`, poi `002`, `003`, `004`
+   (la `004` crea automaticamente il bucket Storage privato `ragazzo_photos`)
+3. Copia le chiavi nelle variabili d'ambiente:
 
 ```bash
 # backend/.env

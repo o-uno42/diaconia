@@ -11,6 +11,9 @@ export interface UserProfile {
   role: Role;
   email: string;
   ragazzoId?: string;
+  textScalePercent?: number;
+  highContrast?: boolean;
+  firstName?: string;
 }
 
 // ─── Ragazzo ───────────────────────────────────────────────────────
@@ -28,6 +31,12 @@ export interface Ragazzo {
   keywords: string[];
   photos: RagazzoPhoto[];
   pointsHistory: WeeklyPoints[];
+  topTask?: TopTask | null;
+}
+
+export interface TopTask {
+  name: string;
+  count: number;
 }
 
 export interface RagazzoPhoto {

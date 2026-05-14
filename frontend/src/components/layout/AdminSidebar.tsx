@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAppContext } from '../../store/AppContext';
 import { t } from '../../i18n/translations';
+import logo from '../../assets/logo.png';
 
 const navItems = [
   { to: '/admin', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', labelKey: 'nav_dashboard' as const },
@@ -16,16 +17,14 @@ export default function AdminSidebar() {
   const lang = state.language;
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 gradient-admin border-r border-white/10 z-40 flex flex-col">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-white/55 backdrop-blur-md border-r border-stone-200/70 z-40 flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
+      <div className="p-6 border-b border-stone-200/70">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gradient-accent flex items-center justify-center">
-            <span className="text-white font-bold text-lg">D</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-white">Diaconia</h1>
-            <p className="text-xs text-white/50">Case Management</p>
+          <div className="text-center mt-3 mb-2 animate-slide-up">
+            <img src={logo} alt="Diaconia" className="w-20 h-10 mx-auto mb-2 object-contain" />
+            <h1 className="text-lg font-bold text-stone-800">Diaconia</h1>
+            <p className="text-xs text-stone-800/50">{t('brand_subtitle', lang)}</p>
           </div>
         </div>
       </div>
@@ -40,8 +39,8 @@ export default function AdminSidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-accent-600/20 text-accent-300 shadow-glow-indigo'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-indigo-100 text-indigo-700 shadow-sm'
+                  : 'text-stone-700/80 hover:text-stone-900 hover:bg-white/60'
               }`
             }
           >
@@ -54,12 +53,12 @@ export default function AdminSidebar() {
       </nav>
 
       {/* User / Logout */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-stone-200/70">
         <div className="flex items-center gap-3 px-4 py-2 mb-2">
-          <div className="w-8 h-8 rounded-full gradient-accent flex items-center justify-center text-xs font-bold text-white">A</div>
+          <div className="w-8 h-8 rounded-full gradient-accent flex items-center justify-center text-xs font-bold text-stone-800">A</div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">Admin</p>
-            <p className="text-xs text-white/40 truncate">{state.currentUser?.email}</p>
+            <p className="text-sm font-medium text-stone-800 truncate">{t('role_admin', lang)}</p>
+            <p className="text-xs text-stone-800/40 truncate">{state.currentUser?.email}</p>
           </div>
         </div>
         <button

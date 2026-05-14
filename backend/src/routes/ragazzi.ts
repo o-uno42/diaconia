@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../lib/supabase';
 import { requireAdmin, requireAdminOrOwn } from '../middleware/roleGuard';
-import { getWeeklyPoints } from '../services/pointsService';
+import { getWeeklyPoints, getTopTask } from '../services/pointsService';
 
 const router = Router();
 
@@ -145,8 +145,11 @@ router.get('/:id', requireAdminOrOwn, async (req: Request, res: Response): Promi
       .eq('ragazzo_id', data.id)
       .order('uploaded_at', { ascending: false });
 
-    // Get points
-    const pointsHistory = await getWeeklyPoints(data.id);
+    // Get points and top task in parallel
+    const [pointsHistory, topTask] = await Promise.all([
+      getWeeklyPoints(data.id),
+      getTopTask(data.id),
+    ]);
 
     res.json({
       data: {
@@ -169,6 +172,7 @@ router.get('/:id', requireAdminOrOwn, async (req: Request, res: Response): Promi
           uploadedAt: p.uploaded_at,
         })),
         pointsHistory,
+        topTask,
       },
     });
   } catch {

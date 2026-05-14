@@ -39,7 +39,7 @@ export default function RagazziListPage() {
   return (
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">{t('rag_title', lang)}</h1>
+        <h1 className="text-2xl font-bold text-stone-800">{t('rag_title', lang)}</h1>
         <div className="flex items-center gap-3">
           <NotificationBell />
         </div>
@@ -66,13 +66,13 @@ export default function RagazziListPage() {
             className="animate-slide-up"
           >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl gradient-success flex items-center justify-center text-white font-bold flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl gradient-success flex items-center justify-center text-stone-800 font-bold flex-shrink-0">
                 {r.firstName.charAt(0)}{r.lastName.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white">{r.firstName} {r.lastName}</h3>
-                <p className="text-sm text-white/40 truncate">{r.email}</p>
-                <p className="text-xs text-white/30 mt-1">{r.phone}</p>
+                <h3 className="font-semibold text-stone-800">{r.firstName} {r.lastName}</h3>
+                <p className="text-sm text-stone-800/40 truncate">{r.email}</p>
+                <p className="text-xs text-stone-800/30 mt-1">{r.phone}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {r.keywords.map((kw) => (
                     <Badge key={kw} color="amber">{kw}</Badge>

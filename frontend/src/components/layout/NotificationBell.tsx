@@ -37,7 +37,7 @@ export default function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
+        className="relative p-2 rounded-xl text-stone-700 hover:text-stone-800 hover:bg-white/10 transition-all border border-stone-400"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -54,7 +54,7 @@ export default function NotificationBell() {
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 top-full mt-2 w-80 glass-card z-50 animate-scale-in overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <h3 className="font-semibold text-white text-sm">{t('notif_title', lang)}</h3>
+              <h3 className="font-semibold text-stone-800 text-sm">{t('notif_title', lang)}</h3>
               {unreadCount > 0 && (
                 <button onClick={markAllRead} className="text-xs text-accent-400 hover:text-accent-300">
                   {t('notif_mark_all', lang)}
@@ -63,12 +63,12 @@ export default function NotificationBell() {
             </div>
             <div className="max-h-80 overflow-y-auto scrollbar-thin">
               {state.notifications.length === 0 ? (
-                <p className="px-4 py-6 text-center text-white/40 text-sm">{t('notif_empty', lang)}</p>
+                <p className="px-4 py-6 text-center text-stone-800/40 text-sm">{t('notif_empty', lang)}</p>
               ) : (
                 state.notifications.map((n) => (
                   <div key={n.id} className={`px-4 py-3 border-b border-white/5 ${n.read ? 'opacity-50' : ''}`}>
-                    <p className="text-sm text-white/80">{n.message}</p>
-                    <p className="text-xs text-white/30 mt-1">
+                    <p className="text-sm text-stone-800/80">{n.message}</p>
+                    <p className="text-xs text-stone-800/30 mt-1">
                       {new Date(n.createdAt).toLocaleString('it-IT', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                     </p>
                   </div>

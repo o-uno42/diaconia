@@ -6,10 +6,10 @@ import type { UserProfile } from '@shared/types';
 
 // Mock users for offline demo
 const MOCK_USERS: Record<string, UserProfile> = {
-  'admin@demo.it': { id: 'mock-admin-id', role: 'admin', email: 'admin@demo.it' },
-  'mario@demo.it': { id: 'mock-mario-uid', role: 'ragazzo', email: 'mario@demo.it', ragazzoId: 'mock-mario-id' },
-  'giulia@demo.it': { id: 'mock-giulia-uid', role: 'ragazzo', email: 'giulia@demo.it', ragazzoId: 'mock-giulia-id' },
-  'ahmed@demo.it': { id: 'mock-ahmed-uid', role: 'ragazzo', email: 'ahmed@demo.it', ragazzoId: 'mock-ahmed-id' },
+  'admin@demo.it': { id: 'mock-admin-id', role: 'admin', email: 'admin@demo.it', textScalePercent: 100 },
+  'mario@demo.it': { id: 'mock-mario-uid', role: 'ragazzo', email: 'mario@demo.it', ragazzoId: 'mock-mario-id', textScalePercent: 100 },
+  'giulia@demo.it': { id: 'mock-giulia-uid', role: 'ragazzo', email: 'giulia@demo.it', ragazzoId: 'mock-giulia-id', textScalePercent: 100 },
+  'ahmed@demo.it': { id: 'mock-ahmed-uid', role: 'ragazzo', email: 'ahmed@demo.it', ragazzoId: 'mock-ahmed-id', textScalePercent: 100 },
 };
 
 export function useAuth() {

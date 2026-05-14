@@ -55,7 +55,7 @@ export default function CommitmentsCalendarPage() {
   return (
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">{t('commit_title', lang)}</h1>
+        <h1 className="text-2xl font-bold text-stone-800">{t('commit_title', lang)}</h1>
         <div className="flex items-center gap-3">
           <Button size="sm" onClick={() => setShowCreate(true)}>{t('commit_add', lang)}</Button>
           <NotificationBell />
@@ -64,7 +64,7 @@ export default function CommitmentsCalendarPage() {
 
       <div className="flex items-center gap-3 mb-6">
         <Button variant="ghost" size="sm" onClick={() => setOffset(weekOffset - 1)}>←</Button>
-        <span className="text-white/50 text-sm">{weekId}</span>
+        <span className="text-stone-800/50 text-sm">{weekId}</span>
         <Button variant="ghost" size="sm" onClick={() => setOffset(weekOffset + 1)}>→</Button>
       </div>
 
@@ -73,7 +73,7 @@ export default function CommitmentsCalendarPage() {
           <thead>
             <tr className="border-b border-white/10">
               {days.map((d, i) => (
-                <th key={i} className="px-3 py-3 text-sm font-semibold text-white/60 text-center">{d}</th>
+                <th key={i} className="px-3 py-3 text-sm font-semibold text-stone-800/60 text-center">{d}</th>
               ))}
             </tr>
           </thead>
@@ -86,8 +86,8 @@ export default function CommitmentsCalendarPage() {
                     <div className="space-y-2">
                       {dayCommits.map((c, ci) => (
                         <div key={c.id} className={`p-2 rounded-lg bg-gradient-to-br ${ragazzoColors[ci % 3]} border border-white/5 group`}>
-                          <p className="text-xs font-medium text-white">{c.text}</p>
-                          <p className="text-[10px] text-white/40 mt-1">{getRagazzoName(c.ragazzoId)}</p>
+                          <p className="text-xs font-medium text-stone-800">{c.text}</p>
+                          <p className="text-[10px] text-stone-800/40 mt-1">{getRagazzoName(c.ragazzoId)}</p>
                           <button onClick={() => handleDelete(c.id)} className="text-red-400/0 group-hover:text-red-400/60 text-[10px] transition-colors">✕</button>
                         </div>
                       ))}
@@ -103,20 +103,20 @@ export default function CommitmentsCalendarPage() {
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={t('commit_add', lang)} size="sm">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-white/60 mb-1">{t('task_assign', lang)}</label>
+            <label className="block text-sm text-stone-800/60 mb-1">{t('task_assign', lang)}</label>
             <select value={newRagazzoId} onChange={(e) => setNewRagazzoId(e.target.value)} className="input-field">
               <option value="">—</option>
               {state.ragazzi.map((r) => <option key={r.id} value={r.id}>{r.firstName} {r.lastName}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm text-white/60 mb-1">Giorno</label>
+            <label className="block text-sm text-stone-800/60 mb-1">{t('commit_day', lang)}</label>
             <select value={newDay} onChange={(e) => setNewDay(parseInt(e.target.value))} className="input-field">
               {days.map((d, i) => <option key={i} value={i}>{d}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm text-white/60 mb-1">{t('commit_text', lang)}</label>
+            <label className="block text-sm text-stone-800/60 mb-1">{t('commit_text', lang)}</label>
             <input value={newText} onChange={(e) => setNewText(e.target.value)} className="input-field" />
           </div>
           <div className="flex gap-3 justify-end">

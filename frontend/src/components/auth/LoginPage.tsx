@@ -2,14 +2,19 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAppContext } from '../../store/AppContext';
+import { t } from '../../i18n/translations';
 import Button from '../ui/Button';
+import logo from '../../assets/logo.png';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [demoOpen, setDemoOpen] = useState(false);
   const { login, loading, error, user } = useAuth();
   const { state } = useAppContext();
   const navigate = useNavigate();
+  const lang = state.language;
+  const enableInputAutofocus = typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches;
 
   // Redirect if already logged in
   useEffect(() => {
@@ -29,23 +34,21 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 gradient-admin" />
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-accent-600/20 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
+      <div className="absolute inset-0 gradient-ragazzo" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-amber-300/25 rounded-full blur-3xl animate-pulse-soft" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-300/20 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
 
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-slide-up">
-          <div className="w-20 h-20 mx-auto rounded-2xl gradient-accent flex items-center justify-center mb-4 shadow-glow-indigo">
-            <span className="text-4xl font-bold text-white">D</span>
-          </div>
-          <h1 className="text-3xl font-bold text-white">Diaconia</h1>
-          <p className="text-white/50 mt-1">Case Management Platform</p>
+          <img src={logo} alt="Diaconia" className="w-30 h-20 mx-auto mb-4 object-contain" />
+          <h1 className="text-3xl font-bold text-stone-800">Diaconia</h1>
+          <p className="text-stone-800/50 mt-1">{t('brand_tagline', lang)}</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="glass-card p-8 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <h2 className="text-xl font-semibold text-white mb-6">Accedi</h2>
+          <h2 className="text-xl font-semibold text-stone-800 mb-6">{t('auth_login_btn', lang)}</h2>
 
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm animate-fade-in">
@@ -55,7 +58,7 @@ export default function LoginPage() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="login-email" className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
+              <label htmlFor="login-email" className="block text-sm font-medium text-stone-800/70 mb-1.5">Email</label>
               <input
                 id="login-email"
                 type="email"
@@ -64,12 +67,12 @@ export default function LoginPage() {
                 className="input-field"
                 placeholder="admin@demo.it"
                 required
-                autoFocus
+                autoFocus={enableInputAutofocus}
               />
             </div>
 
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-white/70 mb-1.5">Password</label>
+              <label htmlFor="login-password" className="block text-sm font-medium text-stone-800/70 mb-1.5">Password</label>
               <input
                 id="login-password"
                 type="password"
@@ -82,33 +85,55 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" loading={loading} className="w-full mt-2" size="lg">
-              Accedi
+              {t('auth_login_btn', lang)}
             </Button>
           </div>
         </form>
 
-        {/* Demo credentials */}
-        <div className="mt-6 glass-card p-5 animate-slide-up" style={{ animationDelay: '200ms' }}>
-          <p className="text-xs font-medium text-white/50 mb-3 uppercase tracking-wider">Credenziali demo</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {[
-              { label: 'Admin', email: 'admin@demo.it' },
-              { label: 'Mario', email: 'mario@demo.it' },
-              { label: 'Giulia', email: 'giulia@demo.it' },
-              { label: 'Ahmed', email: 'ahmed@demo.it' },
-            ].map((cred) => (
-              <button
-                key={cred.email}
-                type="button"
-                onClick={() => { setEmail(cred.email); setPassword('demo1234'); }}
-                className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-left transition-all border border-white/5 hover:border-white/15"
-              >
-                <span className="font-semibold text-white/80">{cred.label}</span>
-                <span className="block text-white/40 mt-0.5">{cred.email}</span>
-              </button>
-            ))}
+        {/* Demo credentials (collapsible) */}
+        <div className="mt-6 glass-card overflow-hidden animate-slide-up" style={{ animationDelay: '200ms' }}>
+          <button
+            type="button"
+            onClick={() => setDemoOpen((o) => !o)}
+            aria-expanded={demoOpen}
+            className="w-full flex items-center justify-between px-5 py-4 text-left"
+          >
+            <p className="text-xs font-medium text-stone-800/50 uppercase tracking-wider">{t('auth_demo_credentials', lang)}</p>
+            <svg
+              className={`w-5 h-5 text-stone-800 transition-transform duration-300 ${demoOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${demoOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="px-5 pb-5">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { label: 'Admin', email: 'admin@demo.it' },
+                    { label: 'Mario', email: 'mario@demo.it' },
+                    { label: 'Giulia', email: 'giulia@demo.it' },
+                    { label: 'Ahmed', email: 'ahmed@demo.it' },
+                  ].map((cred) => (
+                    <button
+                      key={cred.email}
+                      type="button"
+                      onClick={() => { setEmail(cred.email); setPassword('demo1234'); }}
+                      className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-left transition-all border border-white/5 hover:border-white/15"
+                    >
+                      <span className="font-semibold text-stone-800/80">{cred.label}</span>
+                      <span className="block text-stone-800/40 mt-0.5">{cred.email}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-stone-800/30 mt-2 text-center">{t('auth_demo_password_hint', lang)}</p>
+              </div>
+            </div>
           </div>
-          <p className="text-[10px] text-white/30 mt-2 text-center">Password: demo1234</p>
         </div>
       </div>
     </div>

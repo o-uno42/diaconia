@@ -6,7 +6,8 @@ import { isMockMode } from '../../lib/supabase';
 import { MOCK_RAGAZZI } from '../../lib/mockData';
 import { t } from '../../i18n/translations';
 import Card from '../ui/Card';
-import Badge from '../ui/Badge';
+import Button from '../ui/Button';
+import homeImg from '../../assets/home.png';
 import NotificationBell from '../layout/NotificationBell';
 import type { Ragazzo } from '@shared/types';
 
@@ -32,90 +33,105 @@ export default function AdminDashboard() {
   const totalCompletions = state.tasks.reduce((sum, t) => sum + t.completions.length, 0);
   const pendingTasks = state.tasks.filter((t) => !t.assignedTo).length;
 
-  const stats = [
-    { label: t('dash_active_ragazzi', lang), value: state.ragazzi.length, icon: '👥', color: 'from-accent-600 to-accent-400' },
-    { label: t('dash_weekly_tasks', lang), value: state.tasks.length, icon: '📋', color: 'from-emerald-600 to-emerald-400' },
-    { label: t('dash_completions', lang), value: totalCompletions, icon: '✅', color: 'from-sky-600 to-sky-400' },
-    { label: t('dash_pending', lang), value: pendingTasks, icon: '⏳', color: 'from-amber-600 to-amber-400' },
+  const weeklyStats = [
+    { label: t('dash_weekly_tasks', lang), value: state.tasks.length, color: 'from-emerald-100 to-emerald-200' },
+    { label: t('dash_completions', lang), value: totalCompletions, color: 'from-sky-100 to-sky-200' },
+    { label: t('dash_pending', lang), value: pendingTasks, color: 'from-amber-100 to-amber-200' },
   ];
 
   return (
     <div className="animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white">{t('dash_title', lang)}</h1>
-          <p className="text-white/50 mt-1">Benvenuto nella piattaforma Diaconia</p>
-        </div>
+        <h1 className="text-3xl font-bold text-stone-800">{t('dash_title', lang)}</h1>
         <NotificationBell />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat, i) => (
-          <div key={i} className="glass-card p-5 hover:bg-white/10 transition-all duration-300 animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/50">{stat.label}</p>
-                <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
-              </div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-xl`}>
-                {stat.icon}
+      {/* ─── SECTION: Ragazzi ───────────────────────────────────────── */}
+      <section className="mb-10">
+        <h2 className="text-2xl font-bold text-stone-800 mb-4">{t('dash_section_ragazzi', lang)}</h2>
+
+        {/* Stat — registered ragazzi */}
+        <div className="relative mb-6">
+          <div className="animate-slide-up max-w-lg" style={{ animationDelay: `0ms` }}>
+            <div className="glass-card p-5 bg-gradient-to-br from-accent-100 to-accent-200 border border-stone-500 max-w-full">
+              <div className="min-w-0">
+                <p className="text-sm text-stone-800">{t('dash_active_ragazzi', lang)}:</p>
+                <p className="text-3xl font-bold text-stone-800 mt-1 truncate">{state.ragazzi.length}</p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Ragazzi Quick List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card header={<h2 className="text-lg font-semibold text-white">{t('nav_ragazzi', lang)}</h2>}>
-          <div className="space-y-3">
-            {state.ragazzi.map((r, i) => (
-              <div
-                key={r.id}
-                onClick={() => navigate(`/admin/ragazzi/${r.id}`)}
-                className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-all animate-slide-up"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
-                <div className="w-10 h-10 rounded-full gradient-success flex items-center justify-center text-white font-bold text-sm">
-                  {r.firstName.charAt(0)}{r.lastName.charAt(0)}
+          {/* Image pinned to the right edge; kept outside the stat card with space-between effect */}
+          <div className="absolute right-4 top-2/3 transform -translate-y-1/2 opacity-50">
+            <img src={homeImg} alt="Home" className="w-[550px] h-auto object-contain flex-shrink-0" />
+          </div>
+        </div>
+
+        {/* Ragazzi list — clean rows with "Apri report" CTA */}
+        <Card
+          header={
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-stone-800">{t('nav_ragazzi', lang)}</h3>
+              {/* TODO: wire to actual "add ragazzo" flow; for now lands on list page */}
+              <Button size="sm" variant="secondary" onClick={() => navigate('/admin/ragazzi')}>
+                + {t('rag_add', lang)}
+              </Button>
+            </div>
+          }
+        >
+          <div className="max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {state.ragazzi.map((r, i) => (
+                <div
+                  key={r.id}
+                  className="flex items-center gap-3 p-3 rounded-xl border border-stone-400 hover:bg-white/5 transition-all animate-slide-up"
+                  style={{ animationDelay: `${i * 50}ms` }}
+                >
+                  <div
+                    onClick={() => navigate(`/admin/ragazzi/${r.id}`)}
+                    className="w-10 h-10 flex items-center justify-center text-stone-800 font-bold text-2xl cursor-pointer shrink-0"
+                  >
+                    ★
+                  </div>
+                  <div
+                    onClick={() => navigate(`/admin/ragazzi/${r.id}`)}
+                    className="flex-1 min-w-0 cursor-pointer"
+                  >
+                    <p className="font-medium text-stone-800 truncate">{r.firstName} {r.lastName}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="animate-pulse-cta hover:animate-none shrink-0"
+                    onClick={() => navigate(`/admin/ragazzi/${r.id}/report`)}
+                  >
+                    {t('report_open', lang)}
+                  </Button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white">{r.firstName} {r.lastName}</p>
-                  <p className="text-xs text-white/40">{r.email}</p>
-                </div>
-                <div className="flex gap-1">
-                  {r.keywords.map((kw) => (
-                    <Badge key={kw} color="indigo">{kw}</Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
+      </section>
 
-        {/* Quick Actions */}
-        <Card header={<h2 className="text-lg font-semibold text-white">Azioni rapide</h2>}>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: t('rag_add', lang), icon: '➕', to: '/admin/ragazzi' },
-              { label: t('task_add', lang), icon: '📝', to: '/admin/tasks' },
-              { label: t('report_title', lang), icon: '📊', to: '/admin/ragazzi' },
-              { label: t('nav_commitments', lang), icon: '📅', to: '/admin/commitments' },
-            ].map((action) => (
-              <button
-                key={action.label}
-                onClick={() => navigate(action.to)}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/15 transition-all"
-              >
-                <span className="text-2xl">{action.icon}</span>
-                <span className="text-xs font-medium text-white/70">{action.label}</span>
-              </button>
-            ))}
-          </div>
-        </Card>
-      </div>
+            <div className='dashed-divider'/>
+      {/* ─── SECTION: Settimanale ───────────────────────────────────── */}
+      <section>
+        <h2 className="text-2xl font-bold text-stone-800 mb-4">{t('dash_section_weekly', lang)}</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {weeklyStats.map((stat, i) => (
+            <div
+              key={i}
+              className={`glass-card p-5 bg-gradient-to-br ${stat.color} border border-stone-500 animate-slide-up`}
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              <p className="text-sm text-stone-800">{stat.label}:</p>
+              <p className="text-3xl font-bold text-stone-800 mt-1">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

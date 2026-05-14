@@ -1,7 +1,8 @@
 import type { ApiResponse } from '@shared/types';
 import { supabase, isMockMode } from './supabase';
 
-const BASE_URL = import.meta.env.VITE_API_URL as string || '';
+const envBaseUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+const BASE_URL = envBaseUrl || `${window.location.protocol}//${window.location.hostname}:3001`;
 
 async function getToken(): Promise<string | null> {
   if (isMockMode) return 'mock-token';

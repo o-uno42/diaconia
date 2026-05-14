@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AppProvider, useAppContext } from './store/AppContext';
+import { t } from './i18n/translations';
 import LoginPage from './components/auth/LoginPage';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import AdminSidebar from './components/layout/AdminSidebar';
@@ -10,7 +12,25 @@ import TaskCalendarPage from './components/tasks/TaskCalendarPage';
 import RagazzoTaskView from './components/tasks/RagazzoTaskView';
 import ReportPage from './components/report/ReportPage';
 import CommitmentsCalendarPage from './components/commitments/CommitmentsCalendarPage';
-import { isMockMode } from './lib/supabase';
+import landingImage from './assets/landing.png';
+
+function GlobalAccessibilityPreferences() {
+  const { state } = useAppContext();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const scalePercent = state.currentUser?.role === 'ragazzo' ? state.textScalePercent : 100;
+    root.style.setProperty('--app-text-scale', String(scalePercent / 100));
+  }, [state.currentUser?.role, state.textScalePercent]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (state.highContrast) root.classList.add('high-contrast');
+    else root.classList.remove('high-contrast');
+  }, [state.highContrast]);
+
+  return null;
+}
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { state } = useAppContext();
@@ -20,7 +40,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 function AdminLayout() {
   return (
-    <div className="min-h-screen gradient-admin">
+    <div className="min-h-screen gradient-ragazzo">
       <AdminSidebar />
       <main className="ml-64 p-8 min-h-screen">
         <Outlet />
@@ -49,55 +69,48 @@ function RoleRouter() {
 
 function RagazzoHome() {
   const { state } = useAppContext();
-  const ragazzo = state.currentUser;
+  const title = t('ragazzo_home_title', state.language);
+
   return (
-    <div className="animate-fade-in">
-      <h1 className="text-2xl font-bold text-white mb-2">Ciao! 👋</h1>
-      <p className="text-white/50 mb-6">Benvenuto nella tua area personale</p>
-      <div className="space-y-4">
-        <div className="glass-card p-5">
-          <p className="text-sm text-white/50">Il tuo ruolo</p>
-          <p className="text-lg font-semibold text-ragazzo-400 mt-1">Ragazzo</p>
-        </div>
-        <div className="glass-card p-5">
-          <p className="text-sm text-white/50">Email</p>
-          <p className="text-lg text-white mt-1">{ragazzo?.email}</p>
-        </div>
-      </div>
-      {isMockMode && (
-        <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-          🔧 Modalità demo — nessun backend collegato
-        </div>
-      )}
+    <div className="animate-fade-in min-h-[calc(100dvh-9rem)] flex flex-col items-center justify-center text-center gap-6">
+      <h1 className="text-2xl font-bold text-stone-800">{title}</h1>
+      <img
+        src={landingImage}
+        alt="Landing"
+        className="w-full h-auto max-w-md mx-auto rounded-2xl"
+      />
     </div>
   );
 }
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
+    <>
+      <GlobalAccessibilityPreferences />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-      {/* Admin routes */}
-      <Route path="/admin" element={<AuthGuard><AdminLayout /></AuthGuard>}>
-        <Route index element={<AdminDashboard />} />
-        <Route path="ragazzi" element={<RagazziListPage />} />
-        <Route path="ragazzi/:id" element={<ProfilePage />} />
-        <Route path="ragazzi/:id/report" element={<ReportPage />} />
-        <Route path="tasks" element={<TaskCalendarPage />} />
-        <Route path="commitments" element={<CommitmentsCalendarPage />} />
-      </Route>
+        {/* Admin routes */}
+        <Route path="/admin" element={<AuthGuard><AdminLayout /></AuthGuard>}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="ragazzi" element={<RagazziListPage />} />
+          <Route path="ragazzi/:id" element={<ProfilePage />} />
+          <Route path="ragazzi/:id/report" element={<ReportPage />} />
+          <Route path="tasks" element={<TaskCalendarPage />} />
+          <Route path="commitments" element={<CommitmentsCalendarPage />} />
+        </Route>
 
-      {/* Ragazzo routes */}
-      <Route path="/ragazzo" element={<AuthGuard><RagazzoLayout /></AuthGuard>}>
-        <Route index element={<RagazzoHome />} />
-        <Route path="tasks" element={<RagazzoTaskView />} />
-        <Route path="profile" element={<ProfilePage />} />
-      </Route>
+        {/* Ragazzo routes */}
+        <Route path="/ragazzo" element={<AuthGuard><RagazzoLayout /></AuthGuard>}>
+          <Route index element={<RagazzoHome />} />
+          <Route path="tasks" element={<RagazzoTaskView />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
 
-      {/* Catch-all */}
-      <Route path="*" element={<RoleRouter />} />
-    </Routes>
+        {/* Catch-all */}
+        <Route path="*" element={<RoleRouter />} />
+      </Routes>
+    </>
   );
 }
 

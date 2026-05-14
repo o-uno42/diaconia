@@ -2,7 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
 
 @layer base {
   * {
@@ -10,82 +37,259 @@
   }
   html {
     @apply scroll-smooth;
+    font-size: calc(16px * var(--app-text-scale, 1));
+    background-color: #fef3c7;
+    background-image: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
   }
   body {
-    @apply bg-admin-950 text-white font-sans antialiased;
+    @apply text-stone-800 font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #fef3c7;
+    background-image: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
+  }
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
   }
   [dir="rtl"] {
     direction: rtl;
   }
+
 }
 
 @layer components {
+  /* Card stile "Vetro Caldo" ispirata ai toni crema */
   .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-glass;
+    @apply bg-white/40 backdrop-blur-md border border-stone-200/60 rounded-2xl shadow-sm;
   }
-  .glass-card-light {
-    @apply bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-glass;
-  }
+
+  /* Sfondo Admin: Toni fango/sabbia profondi (da image_2d96d9.png) */
   .gradient-admin {
-    background: linear-gradient(135deg, #312e81 0%, #1e293b 50%, #0f172a 100%);
+    background: linear-gradient(135deg, #a8a29e 0%, #78716c 50%, #44403c 100%);
   }
+
+  /* Sfondo Ragazzo: Toni pastello calmi (da image_2d9772.png) */
   .gradient-ragazzo {
-    background: linear-gradient(135deg, #064e3b 0%, #0f172a 50%, #0c4a6e 100%);
+    background: linear-gradient(135deg, #fef3c7 0%, #e7e5e4 100%);
   }
+
+  /* Accenti Pastello Soft */
   .gradient-accent {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    background: linear-gradient(135deg, #d8b4fe 0%, #818cf8 100%); /* Lavanda e Pervinca */
   }
+
+  .gradient-sand {
+    background: linear-gradient(135deg, #fefec7 0%, #f1a206 100%); /* Lavanda e Pervinca */
+  }
+
   .gradient-success {
-    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%); /* Verde Menta */
   }
+
+  /* Bottoni: Contrasto alto ma colori meno aggressivi */
   .btn-primary {
-    @apply px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200
-           bg-accent-600 hover:bg-accent-500 hover:shadow-glow-indigo
-           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-5 py-2.5 rounded-xl font-bold text-stone-900 transition-all duration-200
+           bg-[#C7D2FE] hover:bg-[#A5B4FC] shadow-sm /* Pastello indaco chiaro */
+           active:scale-[0.98] disabled:opacity-50;
   }
+
   .btn-secondary {
     @apply px-5 py-2.5 rounded-xl font-semibold transition-all duration-200
-           bg-white/10 text-white border border-white/20
-           hover:bg-white/20 active:scale-[0.98];
+           bg-stone-200/50 text-stone-800 border border-stone-300
+           hover:bg-stone-200 active:scale-[0.98];
   }
-  .btn-danger {
-    @apply px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200
-           bg-red-600 hover:bg-red-500 active:scale-[0.98];
-  }
-  .btn-ghost {
-    @apply px-5 py-2.5 rounded-xl font-semibold transition-all duration-200
-           text-white/70 hover:text-white hover:bg-white/10 active:scale-[0.98];
-  }
+
+  /* Input Field: Fondo crema per ridurre lo stress visivo */
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-           text-white placeholder-white/40 outline-none
-           focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20
+    @apply w-full px-4 py-3 rounded-xl bg-[#f5f5f4] border border-stone-300
+           text-stone-900 placeholder-stone-400 outline-none
+           focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100
            transition-all duration-200;
   }
-  .input-field-light {
-    @apply w-full px-4 py-3 rounded-xl bg-white border border-gray-200
-           text-gray-900 placeholder-gray-400 outline-none
-           focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20
-           transition-all duration-200;
+
+  /* Divider tratteggiato color #818cf8 */
+  .dashed-divider {
+    @apply border-t-2 border-dashed border-[#a8a29e] mb-5;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent-400 to-purple-400;
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
   }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-y {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .text-gradient {
+    /* Gradiente leggibile su fondo chiaro */
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600;
+  }
+  
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    scrollbar-color: #d6d3d1 transparent;
   }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-  }
+}
+
+.card > *:first-child {
+  @apply pt-0; /* Rimosso padding-top globale per il contenuto delle card */
+}
+
+/* ==============================================================
+   Visual Accessibility — high-contrast theme override.
+   Activated by adding `.high-contrast` to <html> (driven by user
+   preference). Targets WCAG AA (4.5:1) for all body text and
+   AAA (7:1) for primary CTAs / headings.
+   ============================================================== */
+html.high-contrast {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+html.high-contrast body,
+html.high-contrast #root {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #1c1917 !important;
+}
+
+/* Replace gradient backgrounds with solid white */
+html.high-contrast .gradient-admin,
+html.high-contrast .gradient-ragazzo,
+html.high-contrast .gradient-accent,
+html.high-contrast .gradient-sand,
+html.high-contrast .gradient-success {
+  background: #ffffff !important;
+}
+
+/* Glass card → solid white + thick dark border */
+html.high-contrast .glass-card {
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  border: 2px solid #1c1917 !important;
+  box-shadow: none !important;
+}
+
+/* Primary button: indigo-900 on white = ~13:1 (AAA) */
+html.high-contrast .btn-primary {
+  background-color: #312e81 !important;
+  color: #ffffff !important;
+  border: 2px solid #1c1917 !important;
+  font-weight: 700 !important;
+}
+html.high-contrast .btn-primary:hover {
+  background-color: #1e1b4b !important;
+}
+
+/* Secondary / ghost buttons: outline style for clarity */
+html.high-contrast .btn-secondary,
+html.high-contrast .btn-ghost {
+  background-color: #ffffff !important;
+  color: #1c1917 !important;
+  border: 2px solid #1c1917 !important;
+}
+html.high-contrast .btn-danger {
+  background-color: #991b1b !important; /* red-800 on white ~9:1 */
+  color: #ffffff !important;
+  border: 2px solid #1c1917 !important;
+}
+
+/* Inputs: solid border, no fill */
+html.high-contrast .input-field {
+  background-color: #ffffff !important;
+  border: 2px solid #1c1917 !important;
+  color: #1c1917 !important;
+}
+html.high-contrast .input-field::placeholder {
+  color: #57534e !important; /* stone-600 ~7:1 */
+}
+
+/* Strong focus ring everywhere */
+html.high-contrast *:focus-visible {
+  outline: 3px solid #1d4ed8 !important;
+  outline-offset: 2px !important;
+}
+
+/* Text with reduced opacity → solid dark.
+   Tailwind opacity classes survive in the DOM as e.g. "text-stone-800/50",
+   so we match the substring (the "/" is in the literal class name). */
+html.high-contrast [class*="text-stone-800/"],
+html.high-contrast [class*="text-stone-700/"],
+html.high-contrast [class*="text-stone-900/"],
+html.high-contrast [class*="text-white/"] {
+  color: #1c1917 !important;
+}
+
+/* Pastel card backgrounds → keep light tint but force thick dark border
+   so cards are well-defined and text inside reads strongly. */
+html.high-contrast .bg-emerald-100,
+html.high-contrast .bg-emerald-300,
+html.high-contrast .bg-amber-100,
+html.high-contrast .bg-violet-100,
+html.high-contrast .bg-stone-100,
+html.high-contrast .bg-stone-200\/50 {
+  border-color: #1c1917 !important;
+}
+html.high-contrast [class*="border-emerald-"],
+html.high-contrast [class*="border-amber-"],
+html.high-contrast [class*="border-violet-"],
+html.high-contrast [class*="border-stone-200"],
+html.high-contrast [class*="border-stone-300"],
+html.high-contrast [class*="border-white/"] {
+  border-color: #1c1917 !important;
+  border-width: 2px !important;
+}
+
+/* Disable visual fluff that hurts contrast */
+html.high-contrast [class*="backdrop-blur-"] {
+  backdrop-filter: none !important;
+}
+/* Kill only known-decorative drop shadows. Leave arbitrary `shadow-[...]`
+   values alone: those are typically structural rings (e.g. `shadow-[0_0_0_1px_...]`)
+   that define element boundaries — exactly what we WANT to keep visible
+   in high-contrast mode. */
+html.high-contrast .shadow,
+html.high-contrast .shadow-sm,
+html.high-contrast .shadow-md,
+html.high-contrast .shadow-lg,
+html.high-contrast .shadow-xl,
+html.high-contrast .shadow-2xl,
+html.high-contrast .shadow-inner,
+html.high-contrast .shadow-glass,
+html.high-contrast .shadow-glass-lg,
+html.high-contrast [class*="shadow-glow"] {
+  box-shadow: none !important;
+}
+html.high-contrast [class*="drop-shadow-"] {
+  filter: none !important;
+}
+
+/* Links: underlined by default for visual affordance */
+html.high-contrast a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Saturate accent colours used for important text (e.g. amber-700)
+   to AAA range when they appear as standalone text on white. */
+html.high-contrast .text-amber-700 { color: #78350f !important; } /* amber-900 ~10:1 */
+html.high-contrast .text-emerald-700 { color: #064e3b !important; } /* emerald-900 ~10:1 */
+html.high-contrast .text-indigo-600 { color: #312e81 !important; }  /* indigo-900 ~13:1 */
+html.high-contrast .text-stone-500,
+html.high-contrast .text-stone-400 { color: #44403c !important; }   /* stone-700 ~10:1 */
+
+/* Navigation surfaces (sidebar, bottom nav) use translucent + backdrop-blur
+   in the default theme. With blur disabled in high-contrast they'd let
+   content show through — force them fully opaque. */
+html.high-contrast .nav-surface {
+  background-color: #ffffff !important;
 }

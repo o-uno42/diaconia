@@ -19,7 +19,7 @@ export default function Highlight({ text, keywords, className = '' }: HighlightP
       {parts.map((part, i) => {
         const isMatch = keywords.some((k) => k.toLowerCase() === part.toLowerCase());
         return isMatch ? (
-          <mark key={i} className="bg-yellow-400/30 text-yellow-200 px-0.5 rounded font-medium">
+          <mark key={i} className="bg-yellow-400/30 text-stone-800 px-0.5 rounded font-medium">
             {part}
           </mark>
         ) : (
